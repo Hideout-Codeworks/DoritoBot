@@ -1,7 +1,7 @@
 import {pool} from '../utils/database';
 import {RowDataPacket} from "mysql2";
 
-interface GuildSettings {
+export interface GuildSettings {
     guild_id: string;
     logging: number;
     moderation: number;
