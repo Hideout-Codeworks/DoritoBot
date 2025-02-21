@@ -34,7 +34,7 @@ export async function execute(oldMember: GuildMember, newMember: GuildMember): P
                 await modlogChannel.send({
                         content: `<:timeout:1342496377741250660> **${moderatorUserTag}** timed out **${target.tag}** for \`${humanDuration}\`.\nReason: \`${timeoutReason}\``,
                     });
-            } else {
+            } else if (!settings.botonly_logging) {
                 await modlogChannel.send({
                     content: `<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\`.\nReason: \`${reason}\``,
                 })
