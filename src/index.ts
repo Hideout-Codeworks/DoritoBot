@@ -57,9 +57,29 @@ async function loadEvents(dir: string) {
     }
 }
 
+export async function loadHelpers(dir: string) {
+    const files = readdirSync(dir, { withFileTypes: true });
+
+    for (const file of files) {
+        const fullPath = path.join(dir, file.name);
+        if (file.isDirectory()) {
+            await loadHelpers(fullPath);
+        } else if (file.name.endsWith('.ts') || file.name.endsWith('.js')) {
+            const fileUrl = new URL(`file://${path.resolve(fullPath)}`);
+            try {
+                await import(fileUrl.href);
+                console.log(`Loaded helper: ${file.name}`);
+            } catch (error) {
+                console.error(`Error loading helper: ${file.name}`, error);
+            }
+        }
+    }
+}
+
 async function main() {
-    await loadCommands(commandsPath);
     await loadEvents(eventsPath);
+    await loadHelpers(path.join(__dirname, "helpers"));
+    await loadCommands(commandsPath);
     const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN!);
 
     try {
