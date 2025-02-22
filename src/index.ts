@@ -11,7 +11,11 @@ const eventsPath = path.join(__dirname, 'events');
 class MyClient extends Client {
     commands: Collection<string, { data: SlashCommandBuilder, execute: Function }>;
     constructor() {
-        super({ intents: [GatewayIntentBits.Guilds] });
+        super({ intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildModeration
+            ] });
         this.commands = new Collection();
     }
 }
@@ -45,14 +49,17 @@ async function loadEvents(dir: string) {
         const fullPath = path.join(dir, file.name);
         if (file.name.endsWith('.ts') || file.name.endsWith('.js')) {
             const fileUrl = new URL(`file://${path.resolve(fullPath)}`);
-            import(fileUrl.href).then((event) => {
-                if (event.name && event.execute) {
-                    client.on(event.name, event.execute);
+            try {
+                const event = await import(fileUrl.href);
+                if (event.name && typeof event == "function") {
+                    client.on(event.name, event);
                     console.log(`Loaded event: ${event.name}`);
                 } else {
                     console.warn(`Skipping invalid event in ${fullPath}`);
                 }
-            });
+            } catch (error) {
+                console.error(`Error loading event: ${file.name}`, error);
+            }
         }
     }
 }
