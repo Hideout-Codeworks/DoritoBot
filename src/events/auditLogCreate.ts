@@ -3,6 +3,8 @@ import { client } from '../index';
 import { parseHumanDuration } from '../helpers/parseDuration';
 import { fetchGuildSettings } from '../helpers/fetchGuildSettings';
 
+let isBanInProgress = false;
+
 export const name = 'auditLogCreate';
 
 client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMember, newMember: GuildMember) =>  {
@@ -62,8 +64,6 @@ client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMembe
     }
 });
 
-let isBanInProgress = false;
-
 client.on('guildBanAdd', async (ban) => {
     if (isBanInProgress) return;
     try {
@@ -92,7 +92,6 @@ client.on('guildBanAdd', async (ban) => {
         if (!executor) return;
 
         if (executor.id === client.user.id && reason) {
-            console.log('Type: Bot Ban');
             const [moderatorUserTag, banDuration, banReason] = reason.split(': ', 3);
                         const embed = new EmbedBuilder()
                             .setColor('#781723')
@@ -105,7 +104,6 @@ client.on('guildBanAdd', async (ban) => {
                             .setTimestamp();
                         await modlogChannel.send({ embeds: [embed] });
                     } else if (!settings.botonly_logging || executor.id !== client.user.id) {
-                        console.log('Type: User Ban');
                         const embed = new EmbedBuilder()
                             .setColor('#781723')
                             .setDescription(`<:ban:1342495253164327094> **${executor.tag}** banned **${ban.user.tag}**`)
@@ -150,7 +148,6 @@ client.on('guildMemberRemove', async ( member) => {
         if (!executor) return;
 
         if (executor.id === client.user.id && reason) {
-            console.log('Type: Bot Kick');
             const [moderatorUserTag, kickReason] = reason.split(': ', 2);
             const embed = new EmbedBuilder()
                 .setColor('#ffad33')
@@ -162,7 +159,6 @@ client.on('guildMemberRemove', async ( member) => {
                 .setTimestamp();
             await modlogChannel.send({ embeds: [embed] });
         } else if (!settings.botonly_logging && executor.id !== client.user.id) {
-            console.log('Type: User Kick');
             const embed = new EmbedBuilder()
                 .setColor('#ffad33')
                 .setDescription(`<:kick:1342698439431032833> **${executor.tag}** kicked **${member.user.tag}**`)
