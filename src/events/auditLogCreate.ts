@@ -37,19 +37,19 @@ client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMembe
         if (!timeoutLog) return;
 
         const { target, executor, reason, createdTimestamp } = timeoutLog;
-        if (!target || !executor || !reason || !newMember.communicationDisabledUntilTimestamp) return;
+        if (!target || !executor || !newMember.communicationDisabledUntilTimestamp) return;
 
         const timeoutDuration = newMember.communicationDisabledUntilTimestamp - 27000;
         const humanDuration = parseHumanDuration(timeoutDuration - createdTimestamp);
 
-        if (executor.id === client.user.id) {
+        if (executor.id === client.user.id && reason) {
             const [moderatorUserTag, timeoutReason] = reason.split(': ', 2);
             await modlogChannel.send({
                 content: `<:timeout:1342496377741250660> **${moderatorUserTag}** timed out **${target.tag}** for \`${humanDuration}\`\nReason: \`${timeoutReason}\``,
             });
         } else if(!settings.botonly_logging || executor.id !== client.user.id) {
             await modlogChannel.send({
-                content: `<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\`\nReason: \`${reason}\``,
+                content: `<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\`\nReason: \`${reason || 'No reason provided'}\``,
             });
         }
     } catch (error) {
@@ -72,32 +72,32 @@ client.on('guildAuditLogEntryCreate', async (entry: GuildAuditLogsEntry, guild) 
         }
 
         const { action, target, executor, reason } = entry;
-        if (!target || !executor || !reason) return;
+        if (!target || !executor) return;
 
         if (target instanceof User) {
             switch (action) {
                 case AuditLogEvent.MemberKick:
-                    if (executor.id === client.user.id) {
+                    if (executor.id === client.user.id && reason) {
                         const [moderatorUserTag, kickReason] = reason.split(': ', 2);
                         await modlogChannel.send({
                             content: `<:kick:1342496635631960094> **${moderatorUserTag}** kicked **${target.tag}**\nReason: \`${kickReason}\``,
                         });
-                    } else if (!settings.botonly_logging || executor.id !== client.user.id) {
+                    } else if (!settings.botonly_logging && executor.id !== client.user.id) {
                         await modlogChannel.send({
-                            content: `<:kick:1342496635631960094> **${executor.tag}** kicked **${target.tag}**\nReason: \`${reason}\``,
+                            content: `<:kick:1342496635631960094> **${executor.tag}** kicked **${target.tag}**\nReason: \`${reason || 'No reason provided'}\``,
                         });
                     }
                     break;
 
                 case AuditLogEvent.MemberBanAdd:
-                    if (executor.id === client.user.id) {
+                    if (executor.id === client.user.id && reason) {
                         const [moderatorUserTag, banDuration, banReason] = reason.split(': ', 3);
                         await modlogChannel.send({
                             content: `<:ban:1342495253164327094> **${moderatorUserTag}** banned **${target.tag}**\nDuration: \`${banDuration}\`\nReason: \`${banReason}\``,
                         });
                     } else if (!settings.botonly_logging || executor.id !== client.user.id) {
                         await modlogChannel.send({
-                            content: `<:ban:1342495253164327094> **${executor.tag}** banned **${target.tag}**\nDuration: \`Permanent\`\nReason: \`${reason ?? 'No reason provided'}\``,
+                            content: `<:ban:1342495253164327094> **${executor.tag}** banned **${target.tag}**\nDuration: \`Permanent\`\nReason: \`${reason || 'No reason provided'}\``,
                         });
                     }
                     break;
