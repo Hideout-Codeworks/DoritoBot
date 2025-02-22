@@ -14,6 +14,8 @@ class MyClient extends Client {
         super({ intents: [
                 GatewayIntentBits.Guilds,
                 GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.MessageContent,
                 GatewayIntentBits.GuildModeration
             ] });
         this.commands = new Collection();
