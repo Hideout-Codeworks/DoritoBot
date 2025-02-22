@@ -22,20 +22,18 @@ export async function fetchGuildSettings(guildId: string) {
         const rowData = rows as RowDataPacket[];
 
         if (rowData.length === 0) {
-            console.log(`No settings found for guild: ${guildId}, using default settings`);
-            return {
-                guild_id: guildId,
-                logging: 0,
-                moderation: 1,
-                utility: 1,
-                fun: 1,
-                gacha: 0,
-                botonly_logging: 1,
-                modlog_channel: null,
-                gacha_channel: null,
-                cmd_channel: null,
-                restrict_cmds: false,
-            };
+            console.log(`No settings found for guild: ${guildId}, creating new entry with default values`);
+
+            const insertQuery = `
+                INSERT INTO guild_settings (guild_id, logging, moderation, utility, fun, gacha, botonly_logging, modlog_channel, gacha_channel, cmd_channel, restrict_cmds)
+                VALUES (?, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, null, null, null, DEFAULT);
+            `;
+
+            await pool.execute(insertQuery, [guildId]);
+
+            const [newRows] = await pool.execute(query, [guildId]);
+
+            return (newRows as RowDataPacket[])[0] as GuildSettings;
         }
 
         return rowData[0] as GuildSettings;
