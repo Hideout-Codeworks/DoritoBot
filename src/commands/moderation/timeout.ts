@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember, Permissi
 import { hasModerationPermission, botHasPermission } from '../../helpers/permissions';
 import {parseDurationMs, parseHumanDuration} from '../../helpers/parseDuration';
 
-const MAX_TIMEOUT_DURATION = 604800000;
+const MAX_TIMEOUT_DURATION = 2419200000;
 
 export const data = new SlashCommandBuilder()
     .setName('timeout')
@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
             .setRequired(true))
     .addStringOption(option =>
         option.setName('duration')
-            .setDescription('Timeout duration (max 1 week)')
+            .setDescription('Timeout duration (max 4 weeks)')
             .setRequired(true))
     .addStringOption(option =>
         option.setName('reason')
@@ -48,13 +48,14 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     }
 
     const durationMs = parseDurationMs(duration);
+
     if (!durationMs) {
         await interaction.reply({ content: 'Invalid duration format. Use `10s`, `5m`, `1h`, `1w max`.', flags: MessageFlags.Ephemeral });
         return;
     }
 
     if (durationMs > MAX_TIMEOUT_DURATION) {
-        await interaction.reply({ content: `The maximum timeout duration is 1 week.`, flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: `The maximum timeout duration is 4 weeks.`, flags: MessageFlags.Ephemeral });
         return;
     }
 

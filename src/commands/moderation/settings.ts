@@ -2,17 +2,19 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, 
 import { fetchGuildSettings, GuildSettings } from '../../helpers/fetchGuildSettings';
 import { pool } from '../../utils/database';
 
+const featureNames: Record<string, string> = {
+    restrict_cmds: 'Restrict bot commands to cmd channel',
+    logging: 'Logging',
+    botonly_logging: 'Only log moderation actions made through the bot',
+    moderation: 'Moderation Commands',
+    utility: 'Utility Commands',
+    fun: 'Fun Commands',
+    gacha: 'Gacha System'
+};
+
 export const data = new SlashCommandBuilder()
     .setName('setting')
     .setDescription('Enable or disable a feature')
-    .addStringOption(option =>
-        option.setName('action')
-            .setDescription('Enable or disable the feature')
-            .setRequired(true)
-            .addChoices(
-                { name: 'Enable', value: 'enable' },
-                { name: 'Disable', value: 'disable' }
-            ))
     .addStringOption(option =>
         option.setName('feature')
             .setDescription('The feature to enable or disable')
@@ -26,6 +28,14 @@ export const data = new SlashCommandBuilder()
                 { name: 'Fun Commands', value: 'fun' },
                 { name: 'Gacha System', value: 'gacha' }
             ))
+    .addStringOption(option =>
+        option.setName('action')
+            .setDescription('Enable or disable the feature')
+            .setRequired(true)
+            .addChoices(
+                { name: 'Enable', value: 'enable' },
+                { name: 'Disable', value: 'disable' }
+            ))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -37,7 +47,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
         await interaction.reply({
             content: 'You need the **Manage Server** permission to change these settings.',
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral
         });
         return;
     }
@@ -62,7 +72,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
         if (settings[featureKey] === newValue) {
             await interaction.reply({
-                content: `The feature **${feature}** is already set to **${action}**.`,
+                content: `The feature **${featureNames[feature]}** is already set to **${action}d**.`,
                 flags: MessageFlags.Ephemeral
             });
             return;
@@ -72,7 +82,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         await pool.execute(query, [newValue, guildId]);
 
         await interaction.reply({
-            content: `Successfully ${action}d the feature: ${feature} for this server.`,
+            content: `Successfully set \`${featureNames[feature]}\` as **${action}d** for this server!`,
             flags: MessageFlags.Ephemeral
         });
     } catch (error) {

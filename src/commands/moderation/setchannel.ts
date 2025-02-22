@@ -7,17 +7,24 @@ import {
 } from 'discord.js';
 import { pool } from '../../utils/database';
 
+const CHANNEL_TYPE_NAMES: Record<string, string> = {
+    modlog_channel: 'modlog channel',
+    gacha_channel: 'gacha channel',
+    cmd_channel: 'commands channel'
+};
+
+
 export const data = new SlashCommandBuilder()
     .setName('setchannel')
     .setDescription('Set specific channels for the bot to use (e.g., modlog_channel, gacha_channel, cmd_channel).')
     .addStringOption(option =>
-        option.setName('channel_type')
+        option.setName('type')
             .setDescription('Type of channel to set')
             .setRequired(true)
             .addChoices(
-                { name: 'modlog_channel', value: 'modlog_channel' },
-                { name: 'gacha_channel', value: 'gacha_channel' },
-                { name: 'cmd_channel', value: 'cmd_channel' },
+                { name: 'Modlog Channel', value: 'modlog_channel' },
+                { name: 'Gacha Channel', value: 'gacha_channel' },
+                { name: 'Commands Channel', value: 'cmd_channel' },
             ))
     .addChannelOption(option =>
         option.setName('channel')
@@ -27,7 +34,7 @@ export const data = new SlashCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    const channelType = interaction.options.getString('channel_type')!;
+    const channelType = interaction.options.getString('type')!;
     const channel = interaction.options.getChannel('channel');
     const guildId = interaction.guildId;
 
@@ -48,12 +55,13 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     }
 
     try {
-        // Update the database with the new channel for the selected type
         const query = `UPDATE guild_settings SET ${channelType} = ? WHERE guild_id = ?`;
         await pool.execute(query, [channel.id, guildId]);
 
+        const readableChannelType = CHANNEL_TYPE_NAMES[channelType] || 'Unknown Channel Type';
+
         await interaction.reply({
-            content: `Successfully set the ${channelType} to <#${channel.id}>.`,
+            content: `Successfully set <#${channel.id}> as ${readableChannelType}.`,
             flags: MessageFlags.Ephemeral
         });
     } catch (error) {
