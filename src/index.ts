@@ -51,11 +51,16 @@ async function loadEvents(dir: string) {
             const fileUrl = new URL(`file://${path.resolve(fullPath)}`);
             try {
                 const event = await import(fileUrl.href);
-                if (event.name && typeof event == "function") {
-                    client.on(event.name, event);
+                if (event.name && typeof event.name === 'string' && typeof event.handler === 'function') {
+                    console.warn(`Skipping invalid event in ${fullPath}`);
+                    return;
+                }
+
+                // Check if `client.on` is already used inside the file and pass the event accordingly
+                if (event.name && typeof event.name === 'string') {
                     console.log(`Loaded event: ${event.name}`);
                 } else {
-                    console.warn(`Skipping invalid event in ${fullPath}`);
+                    console.warn(`Skipping invalid event handler`);
                 }
             } catch (error) {
                 console.error(`Error loading event: ${file.name}`, error);
