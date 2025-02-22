@@ -34,7 +34,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     }
 
     if (target.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-        await interaction.reply({ content: 'You cannot timeout another moderator.', flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: 'You cannot kick another moderator.', flags: MessageFlags.Ephemeral });
         return;
     }
 
