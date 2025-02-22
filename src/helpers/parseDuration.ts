@@ -18,15 +18,15 @@ const TIME_ORDER: { unit: string; ms: number }[] = [
     { unit: " seconds", ms: TIME_UNITS.s }
 ];
 
-export function parseDurationMs(input: string): number | null {
+export function parseDurationMs(input: string): number {
     let totalMs = 0;
     const matches = input.match(/(\d+)\s*(s|sec|second|seconds|m|min|minute|minutes|h|hr|hour|hours|d|day|days|w|week|weeks|M|month|months|y|year|years)/gi);
 
-    if (!matches) return null;
+    if (!matches) return 0;
 
     for (const match of matches) {
         const [, num, unit] = match.match(/(\d+)([smhdw])/) || [];
-        if (!num || !unit || !TIME_UNITS[unit]) return null;
+        if (!num || !unit || !TIME_UNITS[unit]) return 0;
 
         totalMs += parseInt(num, 10) * TIME_UNITS[unit];
     }

@@ -1,5 +1,5 @@
 import { Interaction } from 'discord.js';
-import { client } from '../index';
+import { client } from '../main';
 
 export const name = 'interactionCreate';
 client.on('interactionCreate', async (interaction: Interaction) => {

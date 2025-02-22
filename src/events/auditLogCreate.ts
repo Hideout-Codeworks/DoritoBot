@@ -1,5 +1,5 @@
 import { AuditLogEvent, GuildMember, PartialGuildMember, TextChannel, EmbedBuilder } from 'discord.js';
-import { client } from '../index';
+import { client } from '../main';
 import { parseHumanDuration } from '../helpers/parseDuration';
 import { fetchGuildSettings } from '../helpers/fetchGuildSettings';
 
@@ -200,15 +200,29 @@ client.on("guildBanRemove", async ( ban ) => {
         const { executor, reason } = unbanLog;
         if (!executor) return;
 
-        const embed = new EmbedBuilder()
-            .setColor('#63e6be')
-            .setDescription(`<:unban:1342697402250821662> **${executor.tag}** unbanned **${ban.user.tag}**`)
-            .addFields(
-                { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
-            )
-            .setFooter({ text: 'Unban Action'})
-            .setTimestamp();
-        await modlogChannel.send({ embeds: [embed] });
+        if (executor.id === client.user.id && reason) {
+            const [moderatorUserTag, unbanReason] = reason.split(': ', 2);
+            const embed = new EmbedBuilder()
+                .setColor('#63e6be')
+                .setDescription(`<:unban:1342697402250821662> **${moderatorUserTag}** unbanned **${ban.user.tag}**`)
+                .addFields(
+                    { name: '', value: `-# **Reason:**\n\`${unbanReason}\``, inline: false}
+                )
+                .setFooter({ text: 'Unban Action'})
+                .setTimestamp();
+            await modlogChannel.send({ embeds: [embed] });
+        } else if (!settings.botonly_logging && executor.id !== client.user.id) {
+            const embed = new EmbedBuilder()
+                .setColor('#63e6be')
+                .setDescription(`<:unban:1342697402250821662> **${executor.tag}** unbanned **${ban.user.tag}**`)
+                .addFields(
+                    { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                )
+                .setFooter({ text: 'Unban Action'})
+                .setTimestamp();
+            await modlogChannel.send({ embeds: [embed] });
+        }
+
     } catch (error) {
         console.error('Error handling unban event:', error);
     } finally {
