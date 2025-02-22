@@ -1,11 +1,4 @@
-import {
-    AuditLogEvent,
-    GuildAuditLogsEntry,
-    GuildMember,
-    PartialGuildMember,
-    TextChannel,
-    User
-} from 'discord.js';
+import { AuditLogEvent, GuildMember, PartialGuildMember, TextChannel, EmbedBuilder } from 'discord.js';
 import { client } from '../index';
 import { parseHumanDuration } from '../helpers/parseDuration';
 import { fetchGuildSettings } from '../helpers/fetchGuildSettings';
@@ -44,66 +37,136 @@ client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMembe
 
         if (executor.id === client.user.id && reason) {
             const [moderatorUserTag, timeoutReason] = reason.split(': ', 2);
-            await modlogChannel.send({
-                content: `<:timeout:1342496377741250660> **${moderatorUserTag}** timed out **${target.tag}** for \`${humanDuration}\`\nReason: \`${timeoutReason}\``,
-            });
+            const embed = new EmbedBuilder()
+                .setColor('#ff6666')
+                .setDescription(`<:timeout:1342496377741250660> **${moderatorUserTag}** timed out **${target.tag}** for \`${humanDuration}\``)
+                .addFields(
+                    { name: '', value: `-# **Reason:**\n\`${timeoutReason}\``, inline: false}
+                )
+                .setFooter({ text: 'Timeout Action'})
+                .setTimestamp();
+            await modlogChannel.send({ embeds: [embed] });
         } else if(!settings.botonly_logging || executor.id !== client.user.id) {
-            await modlogChannel.send({
-                content: `<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\`\nReason: \`${reason || 'No reason provided'}\``,
-            });
+            const embed = new EmbedBuilder()
+                .setColor('#ff6666')
+                .setDescription(`<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\``)
+                .addFields(
+                    { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                )
+                .setFooter({ text: 'Timeout Action'})
+                .setTimestamp();
+            await modlogChannel.send({ embeds: [embed]});
         }
     } catch (error) {
         console.error('Error fetching audit logs:', error);
     }
 });
 
-client.on('guildAuditLogEntryCreate', async (entry: GuildAuditLogsEntry, guild) => {
+client.on('guildMemberRemove', async ( member) => {
+    console.log('Audit log event received')
     try {
-        if (!guild) return;
         if (!client.user) return;
 
-        const settings = await fetchGuildSettings(guild.id);
+        const settings = await fetchGuildSettings(member.guild.id);
         if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
 
-        const modlogChannel = guild.channels.cache.get(settings.modlog_channel) as TextChannel;
+        const modlogChannel = member.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
         if (!modlogChannel) {
-            console.log(`Invalid modlog channel or channel not found in guild: ${guild.id}`);
+            console.log(`Invalid modlog channel or channel not found in guild: ${member.guild.id}`);
             return;
         }
 
-        const { action, target, executor, reason } = entry;
-        if (!target || !executor) return;
+        const auditLogs = await member.guild.fetchAuditLogs({
+            limit: 1,
+            type: AuditLogEvent.MemberKick,
+        });
 
-        if (target instanceof User) {
-            switch (action) {
-                case AuditLogEvent.MemberKick:
-                    if (executor.id === client.user.id && reason) {
-                        const [moderatorUserTag, kickReason] = reason.split(': ', 2);
-                        await modlogChannel.send({
-                            content: `<:kick:1342496635631960094> **${moderatorUserTag}** kicked **${target.tag}**\nReason: \`${kickReason}\``,
-                        });
-                    } else if (!settings.botonly_logging && executor.id !== client.user.id) {
-                        await modlogChannel.send({
-                            content: `<:kick:1342496635631960094> **${executor.tag}** kicked **${target.tag}**\nReason: \`${reason || 'No reason provided'}\``,
-                        });
-                    }
-                    break;
+        const kickLog = auditLogs.entries.first();
+        if (!kickLog) return;
 
-                case AuditLogEvent.MemberBanAdd:
-                    if (executor.id === client.user.id && reason) {
-                        const [moderatorUserTag, banDuration, banReason] = reason.split(': ', 3);
-                        await modlogChannel.send({
-                            content: `<:ban:1342495253164327094> **${moderatorUserTag}** banned **${target.tag}**\nDuration: \`${banDuration}\`\nReason: \`${banReason}\``,
-                        });
-                    } else if (!settings.botonly_logging || executor.id !== client.user.id) {
-                        await modlogChannel.send({
-                            content: `<:ban:1342495253164327094> **${executor.tag}** banned **${target.tag}**\nDuration: \`Permanent\`\nReason: \`${reason || 'No reason provided'}\``,
-                        });
-                    }
-                    break;
-            }
+        const { executor, reason } = kickLog;
+        if (!executor) return;
+
+        if (executor.id === client.user.id && reason) {
+            console.log('Type: Bot Kick');
+            const [moderatorUserTag, kickReason] = reason.split(': ', 2);
+            const embed = new EmbedBuilder()
+                .setColor('#ffad33')
+                .setDescription(`<:kick:1342496635631960094> **${moderatorUserTag}** kicked **${member.user.tag}**`)
+                .addFields(
+                    { name: '', value: `-# **Reason:**\n\`${kickReason}\``, inline: false}
+                )
+                .setFooter({ text: 'Kick Action'})
+                .setTimestamp();
+            await modlogChannel.send({ embeds: [embed] });
+        } else if (!settings.botonly_logging && executor.id !== client.user.id) {
+            console.log('Type: User Kick');
+            const embed = new EmbedBuilder()
+                .setColor('#ffad33')
+                .setDescription(`<:kick:1342496635631960094> **${executor.tag}** kicked **${member.user.tag}**`)
+                .addFields(
+                    {name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                )
+                .setFooter({text: 'Kick Action'})
+                .setTimestamp();
+            await modlogChannel.send({embeds: [embed]});
         }
     } catch (error) {
+        console.error('Error handling kick event:', error);
+    }
+});
+
+client.on('guildBanAdd', async (ban) => {
+    try {
+        const settings = await fetchGuildSettings(ban.guild.id);
+        if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
+
+        if (!client.user) return;
+
+        const modlogChannel = ban.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
+        if (!modlogChannel) {
+            console.log(`Invalid modlog channel or channel not found in guild: ${ban.guild.id}`);
+            return;
+        }
+
+        const auditLogs = await ban.guild.fetchAuditLogs({
+            limit: 1,
+            type: AuditLogEvent.MemberBanAdd,
+        });
+
+        const banLog = auditLogs.entries.first();
+        if (!banLog) return;
+
+        const { executor, reason } = banLog;
+        if (!executor) return;
+
+        if (executor.id === client.user.id && reason) {
+            console.log('Type: Bot Ban');
+            const [moderatorUserTag, banDuration, banReason] = reason.split(': ', 3);
+                        const embed = new EmbedBuilder()
+                            .setColor('#781723')
+                            .setDescription(`<:ban:1342495253164327094> **${moderatorUserTag}** banned **${ban.user.tag}**`)
+                            .addFields(
+                                { name: '', value: `-# **Duration:**\n\`${banDuration}\``, inline: false},
+                                { name: '', value: `-# **Reason:**\n\`${banReason}\``, inline: false}
+                            )
+                            .setFooter({ text: 'Ban Action'})
+                            .setTimestamp();
+                        await modlogChannel.send({ embeds: [embed] });
+                    } else if (!settings.botonly_logging || executor.id !== client.user.id) {
+                        console.log('Type: User Ban');
+                        const embed = new EmbedBuilder()
+                            .setColor('#781723')
+                            .setDescription(`<:ban:1342495253164327094> **${executor.tag}** banned **${ban.user.tag}**`)
+                            .addFields(
+                                { name: '', value: `-# **Duration:**\n\`Permanent\``, inline: false},
+                                { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                            )
+                            .setFooter({ text: 'Ban Action'})
+                            .setTimestamp();
+                        await modlogChannel.send({ embeds: [embed] });
+                    }
+            } catch (error) {
         console.error('Error handling kick/ban event:', error);
     }
 });
