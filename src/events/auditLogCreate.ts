@@ -8,56 +8,82 @@ let isBanInProgress = false;
 export const name = 'auditLogCreate';
 
 client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMember, newMember: GuildMember) =>  {
+    if (!client.user) return;
+    const settings = await fetchGuildSettings(newMember.guild.id);
+    if (oldMember.communicationDisabledUntilTimestamp === newMember.communicationDisabledUntilTimestamp) return;
+    if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
+    const modlogChannel = newMember.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
+    if (!modlogChannel) {
+        console.log(`Invalid modlog channel or channel not found in guild: ${newMember.guild.id}`);
+        return;
+    }
+
+    const auditLogs = await newMember.guild.fetchAuditLogs({
+        limit: 1,
+        type: AuditLogEvent.MemberUpdate,
+    });
+
+    const timeoutLog = auditLogs.entries.first();
+    if (!timeoutLog) return;
+
+    const { target, executor, reason, createdTimestamp } = timeoutLog;
+
     try {
-        if (oldMember.communicationDisabledUntilTimestamp === newMember.communicationDisabledUntilTimestamp) return;
-
-        if (!client.user) return;
-
-        const settings = await fetchGuildSettings(newMember.guild.id);
-        if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
-
-        const modlogChannel = newMember.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
-
-        if (!modlogChannel) {
-            console.log(`Invalid modlog channel or channel not found in guild: ${newMember.guild.id}`);
+        if (oldMember.communicationDisabledUntilTimestamp !== null && newMember.communicationDisabledUntilTimestamp === null) {
+            if (!target) return;
+            if (executor && executor.id === client.user.id && reason) {
+                const [moderatorUserTag, timeoutRemoveReason] = reason.split(': ', 2);
+                const embed = new EmbedBuilder()
+                    .setColor('#63e6be')
+                    .setDescription(`<:timeoutremove:1342997545395425432> **${newMember.user.tag}**'s timeout has been removed by **${moderatorUserTag}**`)
+                    .addFields(
+                        { name: '', value: `-# **Reason:**\n\`${timeoutRemoveReason}\``, inline: false}
+                    )
+                    .setFooter({text: 'Timeout Removal Action'})
+                    .setTimestamp();
+                await modlogChannel.send({embeds: [embed]});
+            } else if (!settings.botonly_logging && executor && executor.id !== client.user.id) {
+                const embed = new EmbedBuilder()
+                    .setColor('#63e6be')
+                    .setDescription(`<:timeoutremove:1342997545395425432> **${newMember.user.tag}**'s timeout has been removed by **${executor.tag}**`)
+                    .addFields(
+                        { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                    )
+                    .setFooter({text: 'Timeout Removal Action'})
+                    .setTimestamp();
+                await modlogChannel.send({embeds: [embed]});
+            }
             return;
         }
 
-        const auditLogs = await newMember.guild.fetchAuditLogs({
-            limit: 1,
-            type: AuditLogEvent.MemberUpdate,
-        });
+        if (oldMember.communicationDisabledUntilTimestamp !== newMember.communicationDisabledUntilTimestamp) {
+            if (!target || !executor || !newMember.communicationDisabledUntilTimestamp) return;
 
-        const timeoutLog = auditLogs.entries.first();
-        if (!timeoutLog) return;
+            const timeoutDuration = newMember.communicationDisabledUntilTimestamp - 28000;
+            const humanDuration = parseHumanDuration(timeoutDuration - createdTimestamp);
 
-        const { target, executor, reason, createdTimestamp } = timeoutLog;
-        if (!target || !executor || !newMember.communicationDisabledUntilTimestamp) return;
-
-        const timeoutDuration = newMember.communicationDisabledUntilTimestamp - 27000;
-        const humanDuration = parseHumanDuration(timeoutDuration - createdTimestamp);
-
-        if (executor.id === client.user.id && reason) {
-            const [moderatorUserTag, timeoutReason] = reason.split(': ', 2);
-            const embed = new EmbedBuilder()
-                .setColor('#ff6666')
-                .setDescription(`<:timeout:1342496377741250660> **${moderatorUserTag}** timed out **${target.tag}** for \`${humanDuration}\``)
-                .addFields(
-                    { name: '', value: `-# **Reason:**\n\`${timeoutReason}\``, inline: false}
-                )
-                .setFooter({ text: 'Timeout Action'})
-                .setTimestamp();
-            await modlogChannel.send({ embeds: [embed] });
-        } else if(!settings.botonly_logging || executor.id !== client.user.id) {
-            const embed = new EmbedBuilder()
-                .setColor('#ff6666')
-                .setDescription(`<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\``)
-                .addFields(
-                    { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
-                )
-                .setFooter({ text: 'Timeout Action'})
-                .setTimestamp();
-            await modlogChannel.send({ embeds: [embed]});
+            if (executor.id === client.user.id && reason) {
+                const [moderatorUserTag, timeoutReason] = reason.split(': ', 2);
+                const embed = new EmbedBuilder()
+                    .setColor('#ff6666')
+                    .setDescription(`<:timeout:1342496377741250660> **${moderatorUserTag}** timed out **${target.tag}** for \`${humanDuration}\``)
+                    .addFields(
+                        { name: '', value: `-# **Reason:**\n\`${timeoutReason}\``, inline: false}
+                    )
+                    .setFooter({ text: 'Timeout Action'})
+                    .setTimestamp();
+                await modlogChannel.send({ embeds: [embed] });
+            } else if(!settings.botonly_logging || executor.id !== client.user.id) {
+                const embed = new EmbedBuilder()
+                    .setColor('#ff6666')
+                    .setDescription(`<:timeout:1342496377741250660> **${executor.tag}** timed out **${target.tag}** for \`${humanDuration}\``)
+                    .addFields(
+                        { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                    )
+                    .setFooter({ text: 'Timeout Action'})
+                    .setTimestamp();
+                await modlogChannel.send({ embeds: [embed]});
+            }
         }
     } catch (error) {
         console.error('Error fetching audit logs:', error);
@@ -86,7 +112,7 @@ client.on('guildBanAdd', async (ban) => {
         });
 
         const banLog = auditLogs.entries.first();
-        if (!banLog) return;
+        if (!banLog || !banLog.target) return;
 
         const { executor, reason } = banLog;
         if (!executor) return;
@@ -142,7 +168,7 @@ client.on('guildMemberRemove', async ( member) => {
         });
 
         const kickLog = auditLogs.entries.first();
-        if (!kickLog) return;
+        if (!kickLog || !kickLog.target) return;
 
         const { executor, reason } = kickLog;
         if (!executor) return;

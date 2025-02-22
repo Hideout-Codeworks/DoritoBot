@@ -50,7 +50,10 @@ export const data = new SlashCommandBuilder()
 
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (!interaction.guild) return;
+    if (!interaction.guild) {
+        await interaction.reply({ content: 'This command can only be used in a server.', flags: MessageFlags.Ephemeral });
+        return;
+    }
     const guildId = interaction.guild.id;
     const authorId = interaction.user.id;
     const subcommand = interaction.options.getSubcommand();
