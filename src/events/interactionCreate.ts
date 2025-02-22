@@ -2,7 +2,7 @@ import { Interaction } from 'discord.js';
 import { client } from '../index';
 
 export const name = 'interactionCreate';
-export async function execute(interaction: Interaction): Promise<void> {
+client.on('interactionCreate', async (interaction: Interaction) => {
     if (!interaction.isCommand()) return;
 
     const { commandName } = interaction;
@@ -18,4 +18,4 @@ export async function execute(interaction: Interaction): Promise<void> {
     } else {
         await interaction.reply({ content: 'Command not found.', ephemeral: true });
     }
-}
+});
