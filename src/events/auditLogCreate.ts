@@ -62,62 +62,13 @@ client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMembe
     }
 });
 
-client.on('guildMemberRemove', async ( member) => {
-    console.log('Audit log event received')
-    try {
-        if (!client.user) return;
-
-        const settings = await fetchGuildSettings(member.guild.id);
-        if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
-
-        const modlogChannel = member.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
-        if (!modlogChannel) {
-            console.log(`Invalid modlog channel or channel not found in guild: ${member.guild.id}`);
-            return;
-        }
-
-        const auditLogs = await member.guild.fetchAuditLogs({
-            limit: 1,
-            type: AuditLogEvent.MemberKick,
-        });
-
-        const kickLog = auditLogs.entries.first();
-        if (!kickLog) return;
-
-        const { executor, reason } = kickLog;
-        if (!executor) return;
-
-        if (executor.id === client.user.id && reason) {
-            console.log('Type: Bot Kick');
-            const [moderatorUserTag, kickReason] = reason.split(': ', 2);
-            const embed = new EmbedBuilder()
-                .setColor('#ffad33')
-                .setDescription(`<:kick:1342496635631960094> **${moderatorUserTag}** kicked **${member.user.tag}**`)
-                .addFields(
-                    { name: '', value: `-# **Reason:**\n\`${kickReason}\``, inline: false}
-                )
-                .setFooter({ text: 'Kick Action'})
-                .setTimestamp();
-            await modlogChannel.send({ embeds: [embed] });
-        } else if (!settings.botonly_logging && executor.id !== client.user.id) {
-            console.log('Type: User Kick');
-            const embed = new EmbedBuilder()
-                .setColor('#ffad33')
-                .setDescription(`<:kick:1342496635631960094> **${executor.tag}** kicked **${member.user.tag}**`)
-                .addFields(
-                    {name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
-                )
-                .setFooter({text: 'Kick Action'})
-                .setTimestamp();
-            await modlogChannel.send({embeds: [embed]});
-        }
-    } catch (error) {
-        console.error('Error handling kick event:', error);
-    }
-});
+let isBanInProgress = false;
 
 client.on('guildBanAdd', async (ban) => {
+    if (isBanInProgress) return;
     try {
+        isBanInProgress = true;
+
         const settings = await fetchGuildSettings(ban.guild.id);
         if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
 
@@ -168,5 +119,103 @@ client.on('guildBanAdd', async (ban) => {
                     }
             } catch (error) {
         console.error('Error handling kick/ban event:', error);
+    } finally {
+        isBanInProgress = false;
+    }
+});
+
+client.on('guildMemberRemove', async ( member) => {
+    if (isBanInProgress) return;
+    try {
+        if (!client.user) return;
+
+        const settings = await fetchGuildSettings(member.guild.id);
+        if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
+
+        const modlogChannel = member.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
+        if (!modlogChannel) {
+            console.log(`Invalid modlog channel or channel not found in guild: ${member.guild.id}`);
+            return;
+        }
+
+        const auditLogs = await member.guild.fetchAuditLogs({
+            limit: 1,
+            type: AuditLogEvent.MemberKick,
+        });
+
+        const kickLog = auditLogs.entries.first();
+        if (!kickLog) return;
+
+        const { executor, reason } = kickLog;
+        if (!executor) return;
+
+        if (executor.id === client.user.id && reason) {
+            console.log('Type: Bot Kick');
+            const [moderatorUserTag, kickReason] = reason.split(': ', 2);
+            const embed = new EmbedBuilder()
+                .setColor('#ffad33')
+                .setDescription(`<:kick:1342698439431032833> **${moderatorUserTag}** kicked **${member.user.tag}**`)
+                .addFields(
+                    { name: '', value: `-# **Reason:**\n\`${kickReason}\``, inline: false}
+                )
+                .setFooter({ text: 'Kick Action'})
+                .setTimestamp();
+            await modlogChannel.send({ embeds: [embed] });
+        } else if (!settings.botonly_logging && executor.id !== client.user.id) {
+            console.log('Type: User Kick');
+            const embed = new EmbedBuilder()
+                .setColor('#ffad33')
+                .setDescription(`<:kick:1342698439431032833> **${executor.tag}** kicked **${member.user.tag}**`)
+                .addFields(
+                    {name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+                )
+                .setFooter({text: 'Kick Action'})
+                .setTimestamp();
+            await modlogChannel.send({embeds: [embed]});
+        }
+    } catch (error) {
+        console.error('Error handling kick event:', error);
+    }
+});
+
+client.on("guildBanRemove", async ( ban ) => {
+    if (isBanInProgress) return;
+    try {
+        isBanInProgress = true;
+        const settings = await fetchGuildSettings(ban.guild.id);
+        if (!settings || settings.logging === 0 || !settings.modlog_channel) return;
+
+        if (!client.user) return;
+
+        const modlogChannel = ban.guild.channels.cache.get(settings.modlog_channel) as TextChannel;
+        if (!modlogChannel) {
+            console.log(`Invalid modlog channel or channel not found in guild: ${ban.guild.id}`);
+            return;
+        }
+
+        const auditLogs = await ban.guild.fetchAuditLogs({
+            limit: 1,
+            type: AuditLogEvent.MemberBanRemove,
+        });
+
+        const unbanLog = auditLogs.entries.first();
+        if (!unbanLog) return;
+
+        const { executor, reason } = unbanLog;
+        if (!executor) return;
+
+        const embed = new EmbedBuilder()
+            .setColor('#63e6be')
+            .setDescription(`<:unban:1342697402250821662> **${executor.tag}** unbanned **${ban.user.tag}**`)
+            .addFields(
+                { name: '', value: `-# **Reason:**\n\`${reason ?? 'No reason provided'}\``, inline: false}
+            )
+            .setFooter({ text: 'Unban Action'})
+            .setTimestamp();
+        await modlogChannel.send({ embeds: [embed] });
+    } catch (error) {
+        console.error('Error handling unban event:', error);
+    } finally {
+        isBanInProgress = false;
     }
 });
