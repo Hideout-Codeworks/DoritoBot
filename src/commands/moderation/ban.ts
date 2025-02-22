@@ -23,7 +23,7 @@ export const data = new SlashCommandBuilder()
         option.setName('duration')
             .setDescription('Ban duration')
             .setRequired(false))
-    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers);
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.guild) {
