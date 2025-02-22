@@ -2,20 +2,18 @@
   "name": "doritobot",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "src/main.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node src/main.ts"
+    "start": "tsx src/main.ts"
   },
   "dependencies": {
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
-    "mysql2": "^3.12.0"
-  },
-  "devDependencies": {
-    "ts-node": "^10.9.2",
+    "mysql2": "^3.12.0",
     "typescript": "^5.5.3"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "tsx": "^4.19.3"
+  }
 }

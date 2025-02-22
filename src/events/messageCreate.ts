@@ -2,6 +2,7 @@ import {EmbedBuilder, Message} from 'discord.js';
 import { client } from '../main';
 import { getSnippet } from '../helpers/dbManageSnippets';
 
+export const name = 'messageCreate';
 client.on('messageCreate', async (message: Message) => {
     if (message.author.bot || !message.content.startsWith(';')) return;
 

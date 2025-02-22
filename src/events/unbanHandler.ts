@@ -1,6 +1,7 @@
 import { pool } from '../utils/database';
 import { client } from '../main';
 
+export const name = 'unbanHandler';
 async function unbanExpiredUsers(): Promise<void> {
     if (!client.user) return;
     try {
