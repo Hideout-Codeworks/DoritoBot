@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 import {addSnippet, deleteSnippet, editSnippet, getSnippet, getAllSnippets} from "../../helpers/dbManageSnippets";
 import {client} from "../../main";
+import {checkSettings} from "../../utils/checkSettings";
 
 export const data = new SlashCommandBuilder()
     .setName('snippet')
@@ -61,10 +62,8 @@ export const data = new SlashCommandBuilder()
 
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (!interaction.guild) {
-        await interaction.reply({ content: 'This command can only be used in a server.', flags: MessageFlags.Ephemeral });
-        return;
-    }
+    if (!interaction.guild) return;
+    if (!(await checkSettings(interaction, "utility"))) return;
     const guildId = interaction.guild.id;
     const authorId = interaction.user.id;
     const subcommand = interaction.options.getSubcommand();
