@@ -55,22 +55,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                 .setColor('#e6d47b')
                 .setTitle(`🎉 Fun Commands`)
                 .addFields(
-                    { name: '', value: 'TBA' },
-                )
-                .setTimestamp()
-            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })
-        } catch (error) {
-            console.error("Error sending command help: ", error);
-        }
-    }
-
-    if (option === 'gacha') {
-        try {
-            const embed = new EmbedBuilder()
-                .setColor('#e6d47b')
-                .setTitle(`🎰 Gacha Commands`)
-                .addFields(
-                    { name: '', value: 'TBA' },
+                    { name: '`/longcat [length]`', value: 'Sends a long cat emoji chain.' },
+                    { name: '', value: 'More TBA' },
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })
