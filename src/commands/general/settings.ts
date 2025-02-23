@@ -20,14 +20,13 @@ export const data = new SlashCommandBuilder()
                     .setDescription('The feature to enable or disable')
                     .setRequired(true)
                     .addChoices(
-                        { name: 'Restrict bot commands to cmd channel', value: 'restrict_cmds' },
+                        { name: 'Restrict to CMD Channel', value: 'restrict_cmds' },
                         { name: 'Logging', value: 'logging' },
-                        { name: 'Only log moderation actions made through the bot', value: 'botonly_logging' },
+                        { name: 'Only log bot moderation', value: 'botonly_logging' },
                         { name: 'Moderation Commands', value: 'moderation' },
                         { name: 'Utility Commands', value: 'utility' },
                         { name: 'Fun Commands', value: 'fun' },
                         { name: 'Gacha System', value: 'gacha' },
-                        { name: 'Restrict commands to CMD Channel', value: 'restrict_cmds' }
                     ))
     )
     .addSubcommand((subcommand) =>
@@ -39,14 +38,13 @@ export const data = new SlashCommandBuilder()
                     .setDescription('The feature to enable or disable')
                     .setRequired(true)
                     .addChoices(
-                        { name: 'Restrict bot commands to cmd channel', value: 'restrict_cmds' },
+                        { name: 'Restrict to CMD Channel', value: 'restrict_cmds' },
                         { name: 'Logging', value: 'logging' },
-                        { name: 'Only log moderation actions made through the bot', value: 'botonly_logging' },
+                        { name: 'Only log bot moderation', value: 'botonly_logging' },
                         { name: 'Moderation Commands', value: 'moderation' },
                         { name: 'Utility Commands', value: 'utility' },
                         { name: 'Fun Commands', value: 'fun' },
                         { name: 'Gacha System', value: 'gacha' },
-                        { name: 'Restrict commands to CMD Channel', value: 'restrict_cmds' }
                     ))
     )
     .addSubcommand((subcommand) =>
@@ -142,17 +140,18 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                 .setColor('#e6d47b')
                 .setTitle(`⚙️ Settings for **${interaction.guild.name}**`)
                 .addFields(
-                    { name: 'Restrict bot commands to cmd channel', value: settings.restrict_cmds ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Logging', value: settings.logging ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Only log moderation actions made through the bot', value: settings.botonly_logging ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Moderation Commands', value: settings.moderation ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Moderation Log Channel', value: settings.modlog_channel ? `<#${settings.modlog_channel}>` : 'Not Set', inline: true },
-                    { name: 'Utility Commands', value: settings.utility ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Fun Commands', value: settings.fun ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Gacha System', value: settings.gacha ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'Gacha Channel', value: settings.gacha_channel ? `<#${settings.gacha_channel}>` : 'Not Set', inline: true },
-                    { name: 'Restrict commands to CMD Channel', value: settings.restrict_cmds ? 'Enabled' : 'Disabled', inline: true },
-                    { name: 'CMD Channel', value: settings.cmd_channel ? `<#${settings.cmd_channel}>` : 'Not Set', inline: true }
+                    { name: '', value: '🧪 **Bot Features**', inline: false },
+                    { name: '', value: `-# Restrict to CMD Channel\n${settings.restrict_cmds ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Logging\n${settings.logging ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Only log bot moderation\n${settings.botonly_logging ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Moderation Commands\n${settings.moderation ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Utility Commands\n${settings.utility ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}` , inline: true },
+                    { name: '', value: `-# Fun Commands\n${settings.fun ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Gacha System\n${settings.gacha ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: '💬 **Bot Channels**', inline: false },
+                    { name: '', value: `-# Moderation Log Channel\n${settings.modlog_channel ? `<#${settings.modlog_channel}>` : '\` NOT SET \`'}`, inline: true },
+                    { name: '', value: `-# Gacha Channel\n${settings.gacha_channel ? `<#${settings.gacha_channel}>` : '\` NOT SET \`'}`, inline: true },
+                    { name: '', value: `-# CMD Channel\n${settings.cmd_channel ? `<#${settings.cmd_channel}>` : '` NOT SET `'}`, inline: true }
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
