@@ -2,9 +2,10 @@ import { pool } from '../utils/database';
 
 export async function addSnippet(guildId: string, authorId: string, name: string, content: string): Promise<boolean> {
     try {
+        const lowerName = name.toLowerCase();
         await pool.execute(
             `INSERT INTO snippets (guild_id, author_id, name, content) VALUES (?, ?, ?, ?)`,
-            [guildId, authorId, name, content]
+            [guildId, authorId, lowerName, content]
         );
         return true;
     } catch (error: any) {
@@ -25,8 +26,9 @@ export async function editSnippet(guildId: string, name: string, newName?: strin
         const values: any[] = [];
 
         if (newName) {
+            const newNameLower = newName.toLowerCase();
             updateFields.push('name = ?');
-            values.push(newName);
+            values.push(newNameLower);
         }
         if (newContent) {
             updateFields.push('content = ?');
@@ -36,7 +38,7 @@ export async function editSnippet(guildId: string, name: string, newName?: strin
         values.push(guildId, name);
 
         const [result] = await pool.execute(
-            `UPDATE snippets SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ? AND name = ?`,
+            `UPDATE snippets SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE guild_id = ? AND LOWER(name) = ?`,
             values
         ) as any[];
 
@@ -49,9 +51,10 @@ export async function editSnippet(guildId: string, name: string, newName?: strin
 
 export async function deleteSnippet(guildId: string, name: string): Promise<boolean> {
     try {
+        const lowercasedName = name.toLowerCase();
         const [result] = await pool.execute(
-            `DELETE FROM snippets WHERE guild_id = ? AND name = ?`,
-            [guildId, name]
+            `DELETE FROM snippets WHERE guild_id = ? AND LOWER(name) = ?`,
+            [guildId, lowercasedName]
         ) as any[];
 
         return result.affectedRows > 0;
@@ -63,9 +66,10 @@ export async function deleteSnippet(guildId: string, name: string): Promise<bool
 
 export async function getSnippet(guildId: string, name: string): Promise<{ name: string, content: string, author_id: string } | null> {
     try {
+        const lowercasedName = name.toLowerCase();
         const [rows] = await pool.execute(
-            `SELECT name, content, author_id FROM snippets WHERE guild_id = ? AND name = ?`,
-            [guildId, name]
+            `SELECT name, content, author_id FROM snippets WHERE guild_id = ? AND LOWER(name) = ?`,
+            [guildId, lowercasedName]
         ) as any[];
 
         return rows.length > 0 ? rows[0] : null;
