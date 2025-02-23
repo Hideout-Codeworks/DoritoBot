@@ -79,10 +79,10 @@ export async function getSnippet(guildId: string, name: string): Promise<{ name:
     }
 }
 
-export async function getAllSnippets(guildId: string): Promise<{ name: string, content: string, author_id: string }[]> {
+export async function getAllSnippets(guildId: string): Promise<{ name: string, content: string, author_id: string, updated_at: string }[]> {
     try {
         const [rows] = await pool.execute(
-            `SELECT name, content, author_id FROM snippets WHERE guild_id = ? ORDER BY name ASC`,
+            `SELECT name, content, author_id, updated_at FROM snippets WHERE guild_id = ? ORDER BY name ASC`,
             [guildId]
         ) as any[];
 

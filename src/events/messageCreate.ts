@@ -20,7 +20,6 @@ client.on('messageCreate', async (message: Message) => {
             .setTitle(`📌 Snippet: ${snippet.name}`)
             .setDescription(snippet.content)
             .setColor('#e6d47b')
-            .setTimestamp()
             .setFooter({ text: `Written by ${author.tag} • Requested by ${message.author.tag}` });
 
         await message.channel.send({ embeds: [embed] });

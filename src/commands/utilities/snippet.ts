@@ -1,9 +1,11 @@
 import {
     SlashCommandBuilder,
     ChatInputCommandInteraction,
-    MessageFlags
+    MessageFlags,
+    EmbedBuilder
 } from 'discord.js';
-import {addSnippet, deleteSnippet, editSnippet, getSnippet} from "../../helpers/dbManageSnippets";
+import {addSnippet, deleteSnippet, editSnippet, getSnippet, getAllSnippets} from "../../helpers/dbManageSnippets";
+import {client} from "../../main";
 
 export const data = new SlashCommandBuilder()
     .setName('snippet')
@@ -46,7 +48,16 @@ export const data = new SlashCommandBuilder()
                 option.setName('name')
                     .setDescription('The snippet name to delete')
                     .setRequired(true))
-    );
+    )
+    .addSubcommand((subcommand) =>
+    subcommand
+        .setName('list')
+        .setDescription('List of snippets')
+        .addIntegerOption(option =>
+            option.setName('page')
+                .setDescription('Page Number')
+                .setRequired(false))
+        );
 
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -114,6 +125,49 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
             await interaction.reply({ content: `✅ Snippet \`${name}\` deleted successfully!`, flags: MessageFlags.Ephemeral });
         } else {
             await interaction.reply({ content: '❌ Failed to delete snippet.', flags: MessageFlags.Ephemeral });
+        }
+    }
+
+    if (subcommand === 'list') {
+        const page = (interaction.options.getInteger('page') ?? 1) - 1;
+        const snippets = await getAllSnippets(guildId)
+        if (snippets.length === 0) {
+            await interaction.reply({content: "No snippets found on this Server.", flags: MessageFlags.Ephemeral })
+            return;
+        }
+
+        const snippetsPerPage = 20;
+        const totalPages = Math.ceil(snippets.length / snippetsPerPage);
+
+        if (page < 0 || page >= totalPages) {
+            await interaction.reply({
+                content: `Invalid page number. Please provide a page between 1 and ${totalPages}.`,
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        }
+
+        const pageSnippets = snippets.slice(page * snippetsPerPage, (page + 1) * snippetsPerPage);
+
+        try {
+            const embed = new EmbedBuilder()
+                .setTitle(`📌 Snippets for **${interaction.guild.name}**`)
+                .setColor('#e6d47b')
+                .setFooter({ text: `Page ${page + 1} out of ${totalPages} • Requested by ${interaction.user.tag}` });
+
+            pageSnippets.forEach(snippet => {
+                const updatedAtUnix = Math.floor(new Date(snippet.updated_at).getTime() / 1000);
+                const author = client.users.cache.get(snippet.author_id)?.tag ?? snippet.author_id;
+                embed.addFields({
+                    name: `Snippet: \`${snippet.name}\``,
+                    value: `Author: **${author}**\n-# 📝 <t:${updatedAtUnix}>`,
+                    inline: false,
+                });
+            });
+
+            await interaction.reply({ embeds: [embed] });
+        } catch (error) {
+            console.error('Error sending snippet list:', error);
         }
     }
 }
