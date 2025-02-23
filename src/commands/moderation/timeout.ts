@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, GuildMember, PermissionFlagsBits, MessageFlags} from 'discord.js';
-import { hasModerationPermission, botHasPermission } from '../../helpers/permissions';
 import {parseDurationMs, parseHumanDuration} from '../../helpers/parseDuration';
+import {checkSettings} from "../../utils/checkSettings";
 
 const MAX_TIMEOUT_DURATION = 2419200000;
 
@@ -40,16 +40,7 @@ export const data = new SlashCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
-
-    if (!interaction.guild) {
-        await interaction.reply({content: 'This command can only be used in a server.', flags: MessageFlags.Ephemeral});
-        return;
-    }
-
-    if (!await hasModerationPermission(interaction) || !await botHasPermission(interaction)) {
-        await interaction.reply({content: "You aren't allowed to use this command!", flags: MessageFlags.Ephemeral});
-        return;
-    }
+    if (!(await checkSettings(interaction, "moderation"))) return;
 
     const subcommand = interaction.options.getSubcommand();
     const target = interaction.options.getMember('target') as GuildMember;

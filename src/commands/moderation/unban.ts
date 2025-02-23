@@ -4,8 +4,8 @@ import {
     PermissionFlagsBits,
     MessageFlags,
 } from 'discord.js';
-import { hasModerationPermission, botHasPermission } from '../../helpers/permissions';
 import {pool} from "../../utils/database";
+import {checkSettings} from "../../utils/checkSettings";
 
 export const data = new SlashCommandBuilder()
     .setName('unban')
@@ -21,15 +21,8 @@ export const data = new SlashCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    if (!interaction.guild) {
-        await interaction.reply({content: 'This command can only be used in a server.', flags: MessageFlags.Ephemeral});
-        return;
-    }
-
-    if (!await hasModerationPermission(interaction) || !await botHasPermission(interaction)) {
-        await interaction.reply({content: "You aren't allowed to use this command!", flags: MessageFlags.Ephemeral});
-        return;
-    }
+    if (!interaction.guild) return;
+    if (!(await checkSettings(interaction, "moderation"))) return;
 
     const user = interaction.options.getUser('target', true);
     const reason = `${interaction.user.tag}: ${interaction.options.getString('reason') || 'No reason provided'}`;
