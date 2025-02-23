@@ -22,9 +22,9 @@ export const data = new SlashCommandBuilder()
             .setDescription('Type of channel to set')
             .setRequired(true)
             .addChoices(
-                { name: 'Modlog Channel', value: 'modlog_channel' },
+                { name: 'Moderation Log Channel', value: 'modlog_channel' },
                 { name: 'Gacha Channel', value: 'gacha_channel' },
-                { name: 'Commands Channel', value: 'cmd_channel' },
+                { name: 'CMD Channel', value: 'cmd_channel' },
             ))
     .addChannelOption(option =>
         option.setName('channel')
