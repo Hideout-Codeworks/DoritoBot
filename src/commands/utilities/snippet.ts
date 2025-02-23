@@ -159,7 +159,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                 const author = client.users.cache.get(snippet.author_id)?.tag ?? snippet.author_id;
                 embed.addFields({
                     name: `Snippet: \`${snippet.name}\``,
-                    value: `Author: **${author}**\n-# 📝 <t:${updatedAtUnix}>`,
+                    value: `-# 📛 Author: **${author}**\n-# 📝 <t:${updatedAtUnix}>`,
                     inline: false,
                 });
             });
