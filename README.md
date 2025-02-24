@@ -8,7 +8,8 @@
 - [x] Punishment DMs
 - [x] Snippet System
 - [x] Moderation Logging
-- [ ] Optional Gacha System
+- [ ] Leveling System
+- [ ] Gacha System
 
 ...and various other useful utility and fun commands!
 
