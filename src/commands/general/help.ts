@@ -72,7 +72,6 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                 .addFields(
                     { name: '`/rank [target]`', value: "Checks someone's rank" },
                     { name: '`/top`', value: "Check top 10 leaderboard" },
-                    { name: '`Administrative`', value: "" },
                     { name: '`/levels noxp_add <channel>`', value: "Add a channel to be excluded from giving XP" },
                     { name: '`/levels noxp_rem <channel>`', value: "Remove a channel from exclusion" },
                     { name: '`/levels rewards_add <role> <level>`', value: "Add a level reward" },
