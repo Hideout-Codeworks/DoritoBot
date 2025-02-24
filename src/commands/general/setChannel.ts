@@ -23,7 +23,6 @@ export const data = new SlashCommandBuilder()
             .setRequired(true)
             .addChoices(
                 { name: 'Moderation Log Channel', value: 'modlog_channel' },
-                { name: 'Gacha Channel', value: 'gacha_channel' },
                 { name: 'CMD Channel', value: 'cmd_channel' },
             ))
     .addChannelOption(option =>
@@ -41,7 +40,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
         await interaction.reply({
             content: 'You need the **Manage Server** permission to change these settings.',
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral
         });
         return;
     }

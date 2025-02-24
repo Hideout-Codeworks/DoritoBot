@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import {checkSettings} from "../../utils/checkSettings";
 import {getTopRanks} from "../../helpers/dbLeveling";
+import {checkCmdChannel} from "../../utils/checkCmdChannel";
 
 export const data = new SlashCommandBuilder()
     .setName('top')
@@ -13,6 +14,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.guild) return;
     if (!(await checkSettings(interaction, "leveling"))) return;
+    if (!(await checkCmdChannel(interaction))) return;
 
     const guildId = interaction.guild.id;
     const ranks = await getTopRanks(guildId, 10);

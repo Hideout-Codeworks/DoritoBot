@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 import {checkSettings} from "../../utils/checkSettings";
 import {getLevel, getNextLevelXP, getRank, getXP} from "../../helpers/dbLeveling";
+import {checkCmdChannel} from "../../utils/checkCmdChannel";
 
 export const data = new SlashCommandBuilder()
     .setName('rank')
@@ -17,6 +18,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.guild) return;
     if (!(await checkSettings(interaction, "leveling"))) return;
+    if (!(await checkCmdChannel(interaction))) return;
 
     const guildId = interaction.guild.id;
     const target = interaction.options.getUser('target') || interaction.user;

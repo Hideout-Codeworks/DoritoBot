@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
 import {checkSettings} from "../../utils/checkSettings";
+import {checkCmdChannel} from "../../utils/checkCmdChannel";
 
 const cooldowns = new Map<string, number>();
 
@@ -17,6 +18,7 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: ChatInputCommandInteraction) {
     if (!(await checkSettings(interaction, "fun"))) return;
+    if (!(await checkCmdChannel(interaction))) return;
     const length = interaction.options.getInteger('length') ?? 3;
     let cat = "<:longcat1:1343073978238894150>";
 

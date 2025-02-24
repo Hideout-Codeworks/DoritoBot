@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import {checkSettings} from "../../utils/checkSettings";
 import {getLevelSettings, LevelRewards, addLevelReward, removeLevelReward, updateNoXpChannels} from "../../helpers/dbLeveling";
+import {checkCmdChannel} from "../../utils/checkCmdChannel";
 
 export const data = new SlashCommandBuilder()
     .setName('levels')
@@ -68,6 +69,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     if (!interaction.guild) return;
     if (!(await checkSettings(interaction, "leveling"))) return;
+    if (!(await checkCmdChannel(interaction))) return;
 
     const subcommand = interaction.options.getSubcommand();
     const guildId = interaction.guild.id;
