@@ -75,3 +75,37 @@ Once everything is set up, you can start the bot by running:
 ```sh
 npm start
 ```
+
+If you want to run it in the background you can use a tool like [screen](https://linuxize.com/post/how-to-use-linux-screen/) or make it a systemd service:
+```
+sudo nano /etc/systemd/system/doritobot.service
+```
+
+```service
+[Unit]
+Description=DoritoBot Discord Bot
+After=network.target
+
+[Service]
+# It is strongly recommended to make a system user for the bot instead of running it on root
+User=doritobot
+# Change this to the actual folder where you installed the bot
+WorkingDirectory=/home/doritobot/DoritoBot
+ExecStart=/usr/bin/npm start
+Restart=always
+# If you want to log output to files, keep these lines
+StandardOutput=append:/home/doritobot/DoritoBot/dorito.log
+StandardError=append:/home/doritobot/DoritoBot/dorito-error.log
+
+# Ensure the correct Node.js version is used (update this path if necessary)
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:/home/doritobot/.nvm/versions/node/v22.12.0/bin"
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+```sh
+sudo systemctl enable --now doritobot.service
+```
+
