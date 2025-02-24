@@ -80,7 +80,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
         try {
             const humanDuration = parseHumanDuration(durationMs);
-            await target.send({ content: `<:timeout:1342496377741250660> **You where timed out in ${interaction.guild.name}**\n-# **Reason:**\n\`${reason}\`\n-# **Duration:**\n\`${humanDuration}\``});
+            await target.send({ content: `<:timeout:1342496377741250660> **You were timed out in ${interaction.guild.name}**\n-# **Reason:**\n\`${reason}\`\n-# **Duration:**\n\`${humanDuration}\``});
             await target.timeout(durationMs, `${interaction.user.tag}: ${reason}`);
             await interaction.reply({
                 content: `<:timeout:1342496377741250660> Timed out \`${target.user.tag}\` for \`${humanDuration}\``,
@@ -97,7 +97,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
     if (subcommand === "remove") {
         try {
-            await target.send({ content: `<:timeoutremove:1342997545395425432> **Your timed out in ${interaction.guild.name} was removed**\n-# **Reason:**\n\`${reason}\``});
+            await target.send({ content: `<:timeoutremove:1342997545395425432> **Your timeout in ${interaction.guild.name} was removed**\n-# **Reason:**\n\`${reason}\``});
             await target.timeout(null, `${interaction.user.tag}: ${reason}`);
             await interaction.reply({
                 content: `<:timeoutremove:1342997545395425432> Time out removed from \`${target.user.tag}\``,

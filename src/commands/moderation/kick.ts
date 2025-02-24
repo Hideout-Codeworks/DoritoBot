@@ -32,7 +32,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     }
 
     try {
-        await target.send({ content: `<:kick:1342698439431032833> **You where kicked from ${interaction.guild.name}**\n-# **Reason:**\n\`${reason}\``});
+        await target.send({ content: `<:kick:1342698439431032833> **You were kicked from ${interaction.guild.name}**\n-# **Reason:**\n\`${reason}\``});
         await target.kick(`${interaction.user.tag}: ${reason}`)
         await interaction.reply({
             content: `<:kick:1342698439431032833> Kicked \`${target.user.tag}\``,
