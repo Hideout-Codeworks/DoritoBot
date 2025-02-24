@@ -50,7 +50,7 @@ export const data = new SlashCommandBuilder()
             .setName('delete')
             .setDescription('Delete a trigger')
             .addStringOption(option =>
-                option.setName('name')
+                option.setName('trigger')
                     .setDescription('The trigger to delete')
                     .setRequired(true))
     )
@@ -135,7 +135,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     }
 
     if (subcommand === 'delete') {
-        const triggerName = interaction.options.getString('name')!;
+        const triggerName = interaction.options.getString('trigger')!;
 
         const success = await deleteTrigger(interaction.guild.id, triggerName);
 

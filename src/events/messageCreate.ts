@@ -38,7 +38,10 @@ client.on('messageCreate', async (message: Message) => {
     if (!triggers) return;
 
     const messageContent = message.content.toLowerCase();
-    const triggerMatch = triggers.find(trigger => messageContent.includes(trigger.trigger.toLowerCase()));
+    const triggerMatch = triggers.find(trigger =>
+        messageContent.includes(trigger.trigger.toLowerCase()) &&
+        trigger.channels.includes(message.channel.id)
+    );
 
     if (triggerMatch) {
         const snippet = await getSnippetByID(guildId, triggerMatch.snippet_id);
@@ -72,7 +75,8 @@ client.on('messageCreate', async (message: Message) => {
 
                     if (content) {
                         const hasteTriggerMatch = triggers.find(trigger =>
-                            content.toLowerCase().includes(trigger.trigger.toLowerCase())
+                            content.toLowerCase().includes(trigger.trigger.toLowerCase()) &&
+                            trigger.channels.includes(message.channel.id)
                         );
 
                         if (hasteTriggerMatch) {
