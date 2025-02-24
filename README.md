@@ -4,7 +4,7 @@
 ## Features
 - [x] Moderation Commands
 - [x] Tempbans
-- [ ] Warning System
+- [x] Warning System
 - [x] Punishment DMs
 - [x] Snippet System
 - [x] Moderation Logging
