@@ -2,7 +2,7 @@ import {
     SlashCommandBuilder,
     ChatInputCommandInteraction,
     MessageFlags,
-    EmbedBuilder
+    EmbedBuilder, PermissionFlagsBits
 } from 'discord.js';
 import {addSnippet, deleteSnippet, editSnippet, getSnippet, getAllSnippets} from "../../helpers/dbManageSnippets";
 import {client} from "../../main";
@@ -58,7 +58,8 @@ export const data = new SlashCommandBuilder()
             option.setName('page')
                 .setDescription('Page Number')
                 .setRequired(false))
-        );
+        )
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {

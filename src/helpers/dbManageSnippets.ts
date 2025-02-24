@@ -1,5 +1,23 @@
 import { pool } from '../utils/database';
 
+export async function getSnippetByID(guildId: string, snippetId: number): Promise<{ name: string, content: string, author_id: string } | null> {
+    if (!guildId || snippetId === undefined) {
+        console.error('Invalid guildId or snippetId:', { guildId, snippetId });
+        return null;
+    }
+    try {
+        const [rows] = await pool.execute(
+            `SELECT name, content, author_id FROM snippets WHERE guild_id = ? AND id = ?`,
+            [guildId, snippetId]
+        ) as any[];
+
+        return rows.length > 0 ? rows[0] : null;
+    } catch (error) {
+        console.error('Error fetching snippet by ID:', error);
+        return null;
+    }
+}
+
 export async function addSnippet(guildId: string, authorId: string, name: string, content: string): Promise<boolean> {
     try {
         const lowerName = name.toLowerCase();
