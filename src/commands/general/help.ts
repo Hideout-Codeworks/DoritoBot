@@ -15,7 +15,6 @@ export const data = new SlashCommandBuilder()
             .addChoices(
                 { name: 'General Commands', value: 'general'},
                 { name: 'Fun Commands', value: 'fun'},
-                { name: 'Gacha', value: 'gacha'},
                 { name: 'Leveling', value: 'leveling'},
                 { name: 'Moderation', value: 'moderation'},
                 { name: 'Utilities', value: 'utilities'}
@@ -65,28 +64,19 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         }
     }
 
-    if (option === 'gacha') {
-        try {
-            const embed = new EmbedBuilder()
-                .setColor('#e6d47b')
-                .setTitle(`🎰 Gacha Commands`)
-                .addFields(
-                    { name: '', value: 'TBA' },
-                )
-                .setTimestamp()
-            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })
-        } catch (error) {
-            console.error("Error sending command help: ", error);
-        }
-    }
-
     if (option === 'leveling') {
         try {
             const embed = new EmbedBuilder()
                 .setColor('#e6d47b')
                 .setTitle(`<:upvote:1342725280548130866> Leveling Commands`)
                 .addFields(
-                    { name: '', value: 'TBA' },
+                    { name: '`/rank [target]`', value: "Checks someone's rank" },
+                    { name: '`/top`', value: "Check top 10 leaderboard" },
+                    { name: '`Administrative`', value: "" },
+                    { name: '`/levels noxp_add <channel>`', value: "Add a channel to be excluded from giving XP" },
+                    { name: '`/levels noxp_rem <channel>`', value: "Remove a channel from exclusion" },
+                    { name: '`/levels rewards_add <role> <level>`', value: "Add a level reward" },
+                    { name: '`/levels rewards_rem <role>`', value: "Remove a level reward" }
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })
