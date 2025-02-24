@@ -93,6 +93,7 @@ User=doritobot
 WorkingDirectory=/home/doritobot/DoritoBot
 ExecStart=/usr/bin/npm start
 Restart=always
+
 # If you want to log output to files, keep these lines
 StandardOutput=append:/home/doritobot/DoritoBot/dorito.log
 StandardError=append:/home/doritobot/DoritoBot/dorito-error.log
