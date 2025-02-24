@@ -152,7 +152,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
         const success = await removeLevelReward(guildId, role.id);
         await interaction.reply({
-            content: success ? `✅ Successfully removed <@&${role.id}>` : '❌ Failed to remove role.',
+            content: success ? `✅ Successfully removed <@&${role.id}> from rewards` : '❌ Failed to remove role from rewards.',
             flags: MessageFlags.Ephemeral
         });
     }
