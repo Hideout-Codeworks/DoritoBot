@@ -106,6 +106,8 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                     { name: '`/kick <target> [reason]`', value: 'Kick a member from the Server' },
                     { name: '`/ban <target> [duration] [reason]`', value: 'Ban a member from the Server' },
                     { name: '`/unban <target> [reason]`', value: 'Unban a user from the Server' },
+                    { name: '`/warn <target> <reason>`', value: 'Warn a member' },
+                    { name: '`/warnings <target> [page]`', value: `List a member's warnings` }
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })
