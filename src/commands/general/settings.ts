@@ -26,7 +26,7 @@ export const data = new SlashCommandBuilder()
                         { name: 'Moderation Commands', value: 'moderation' },
                         { name: 'Utility Commands', value: 'utility' },
                         { name: 'Fun Commands', value: 'fun' },
-                        { name: 'Gacha System', value: 'gacha' },
+                        { name: 'Leveling System', value: 'leveling' },
                     ))
     )
     .addSubcommand((subcommand) =>
@@ -44,7 +44,7 @@ export const data = new SlashCommandBuilder()
                         { name: 'Moderation Commands', value: 'moderation' },
                         { name: 'Utility Commands', value: 'utility' },
                         { name: 'Fun Commands', value: 'fun' },
-                        { name: 'Gacha System', value: 'gacha' },
+                        { name: 'Leveling System', value: 'leveling' },
                     ))
     )
     .addSubcommand((subcommand) =>
@@ -147,11 +147,30 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                     { name: '', value: `-# Moderation Commands\n${settings.moderation ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
                     { name: '', value: `-# Utility Commands\n${settings.utility ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}` , inline: true },
                     { name: '', value: `-# Fun Commands\n${settings.fun ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
-                    { name: '', value: `-# Gacha System\n${settings.gacha ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Leveling System\n${settings.leveling ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
                     { name: '', value: '💬 **Bot Channels**', inline: false },
                     { name: '', value: `-# Moderation Log Channel\n${settings.modlog_channel ? `<#${settings.modlog_channel}>` : '\` NOT SET \`'}`, inline: true },
-                    { name: '', value: `-# Gacha Channel\n${settings.gacha_channel ? `<#${settings.gacha_channel}>` : '\` NOT SET \`'}`, inline: true },
-                    { name: '', value: `-# CMD Channel\n${settings.cmd_channel ? `<#${settings.cmd_channel}>` : '` NOT SET `'}`, inline: true }
+                    { name: '', value: `-# CMD Channel\n${settings.cmd_channel ? `<#${settings.cmd_channel}>` : '` NOT SET `'}`, inline: true },
+                    {
+                        name: '',
+                        value: `-# No XP Channels\n${
+                            settings.no_xp_channels
+                                ? (() => {
+                                    try {
+                                        const channels = JSON.parse(settings.no_xp_channels);
+                                        if (Array.isArray(channels) && channels.length > 0) {
+                                            return channels.map((id: string) => `<#${id}>`).join(', ');
+                                        } else {
+                                            return '\` NOT SET \`'; 
+                                        }
+                                    } catch (error) {
+                                        return '\` INVALID \`';
+                                    }
+                                })()
+                                : '\` NOT SET \`'
+                        }`,
+                        inline: true
+                    }
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });

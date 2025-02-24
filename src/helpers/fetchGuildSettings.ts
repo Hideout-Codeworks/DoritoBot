@@ -7,12 +7,13 @@ export interface GuildSettings {
     moderation: number;
     utility: number;
     fun: number;
-    gacha: number;
+    leveling: number;
     botonly_logging: number;
     modlog_channel: string | null;
-    gacha_channel: string | null;
+    no_xp_channels: string | string[] | null;
     cmd_channel: string | null;
     restrict_cmds: number;
+    level_rewards: string;
 }
 
 export async function fetchGuildSettings(guildId: string) {
@@ -25,8 +26,8 @@ export async function fetchGuildSettings(guildId: string) {
             console.log(`No settings found for guild: ${guildId}, creating new entry with default values`);
 
             const insertQuery = `
-                INSERT INTO guild_settings (guild_id, logging, moderation, utility, fun, gacha, botonly_logging, modlog_channel, gacha_channel, cmd_channel, restrict_cmds)
-                VALUES (?, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, null, null, null, DEFAULT);
+                INSERT INTO guild_settings (guild_id, logging, moderation, utility, fun, leveling, botonly_logging, modlog_channel, no_xp_channels, cmd_channel, restrict_cmds, level_rewards)
+                VALUES (?, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, null, null, null, 0, null);
             `;
 
             await pool.execute(insertQuery, [guildId]);
