@@ -54,6 +54,29 @@ CREATE TABLE `guild_settings` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `snippet_triggers`
+--
+
+DROP TABLE IF EXISTS `snippet_triggers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `snippet_triggers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `guild_id` varchar(100) NOT NULL,
+  `channels` longtext DEFAULT NULL,
+  `snippet_id` int(11) DEFAULT NULL,
+  `trigger` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_guild_trigger` (`guild_id`,`trigger`,`snippet_id`),
+  KEY `fk_snippet_id` (`snippet_id`),
+  CONSTRAINT `fk_guild_i` FOREIGN KEY (`guild_id`) REFERENCES `snippets` (`guild_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_snippet_id` FOREIGN KEY (`snippet_id`) REFERENCES `snippets` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `snippets`
 --
 
@@ -70,7 +93,24 @@ CREATE TABLE `snippets` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_guild_snippet` (`guild_id`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `warnings`
+--
+
+DROP TABLE IF EXISTS `warnings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `warnings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `guild_id` varchar(100) NOT NULL,
+  `mod_id` varchar(100) NOT NULL,
+  `user_id` varchar(100) NOT NULL,
+  `reason` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -86,4 +126,4 @@ CREATE TABLE `snippets` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-22 22:12:36
+-- Dump completed on 2025-02-24  2:04:14
