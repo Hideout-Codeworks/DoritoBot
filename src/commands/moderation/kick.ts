@@ -15,6 +15,7 @@ export const data = new SlashCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
+    if (!interaction.guild) return;
     if (!(await checkSettings(interaction, "moderation"))) return;
 
     const target = interaction.options.getMember('target') as GuildMember;
@@ -31,6 +32,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
     }
 
     try {
+        await target.send({ content: `<:kick:1342698439431032833> **You where kicked from ${interaction.guild.name}**\n-# **Reason:**\n\`${reason}\``});
         await target.kick(`${interaction.user.tag}: ${reason}`)
         await interaction.reply({
             content: `<:kick:1342698439431032833> Kicked \`${target.user.tag}\``,

@@ -56,6 +56,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         const durationMs = parseDurationMs(duration);
         const reasonText = `${interaction.user.tag}: ${duration !== 'Permanent' ? parseHumanDuration(durationMs) : 'Permanent'}: ${reason}`;
 
+        await target.send({ content: `<:ban:1342495253164327094> **You where banned from ${interaction.guild.name}**\n-# **Reason:**\n\`${reason}\`\n-# **Duration:**\n\`${duration !== 'Permanent' ? parseHumanDuration(durationMs) : 'Permanent'}\``});
         await interaction.guild.bans.create(target.id, { reason: reasonText });
 
         if (duration !== 'Permanent' && durationMs) {

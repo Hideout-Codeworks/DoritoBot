@@ -5,12 +5,12 @@
 - [x] Moderation Commands
 - [x] Tempbans
 - [ ] Warning System
-- [ ] (Cutom?) Punishment DMs
+- [x] Punishment DMs
 - [x] Snippet System
 - [x] Moderation Logging
 - [ ] Optional Gacha System
 
-..and various other useful utility and fun commands!
+...and various other useful utility and fun commands!
 
 ## Installation
 If you want to host this bot yourself, here's a small guide on how to do it! This guide uses Debian Linux, but the general steps are the same. Some commands may vary on different operating systems.
