@@ -46,7 +46,7 @@ exit;
 ```
 Next, import the initial schema for the database:
 ```sql
-mysql -u root -p doritobot < db_migrations/initial-schema.sql
+mariadb -u root -p doritobot < db_migrations/initial-schema.sql
 ```
 
 ### 5. Configure the Bot
