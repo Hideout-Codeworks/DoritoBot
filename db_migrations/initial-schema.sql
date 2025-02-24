@@ -43,13 +43,30 @@ CREATE TABLE `guild_settings` (
   `moderation` tinyint(1) NOT NULL DEFAULT 1,
   `utility` tinyint(1) NOT NULL DEFAULT 1,
   `fun` tinyint(1) NOT NULL DEFAULT 1,
-  `gacha` tinyint(1) NOT NULL DEFAULT 0,
+  `leveling` tinyint(1) NOT NULL DEFAULT 0,
   `botonly_logging` tinyint(1) NOT NULL DEFAULT 1,
   `modlog_channel` varchar(100) DEFAULT NULL,
-  `gacha_channel` varchar(100) DEFAULT NULL,
+  `no_xp_channels` longtext DEFAULT NULL,
   `cmd_channel` varchar(100) DEFAULT NULL,
   `restrict_cmds` tinyint(1) NOT NULL DEFAULT 0,
+  `level_rewards` longtext DEFAULT NULL,
   PRIMARY KEY (`guild_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `levels`
+--
+
+DROP TABLE IF EXISTS `levels`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `levels` (
+  `guild_id` varchar(100) NOT NULL,
+  `user_id` varchar(100) NOT NULL,
+  `xp` int(10) unsigned NOT NULL DEFAULT 0,
+  `level` int(10) unsigned NOT NULL DEFAULT 0,
+  UNIQUE KEY `guild_id` (`guild_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -127,4 +144,4 @@ CREATE TABLE `warnings` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-24  2:53:29
+-- Dump completed on 2025-02-24 18:15:34
