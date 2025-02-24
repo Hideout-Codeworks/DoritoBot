@@ -128,6 +128,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                     { name: '`/trigger create <name> <trigger> <channels>`', value: 'Create a trigger for a snippet' },
                     { name: '`/trigger delete <trigger>`', value: 'Delete a snippet trigger' },
                     { name: '`/trigger edit <trigger> [new_trigger] [new_channels]`', value: 'Edit a snippet trigger' },
+                    { name: '`/trigger list <name>`', value: 'List triggers for a snippet' }
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })

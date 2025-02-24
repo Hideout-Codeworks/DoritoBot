@@ -99,7 +99,7 @@ export async function deleteTrigger(guildId: string, trigger: string): Promise<b
     }
 }
 
-export async function getTriggers(guildId: string, snippetId: string): Promise<{ trigger: string, channels: string[] }[]> {
+export async function getTriggers(guildId: string, snippetId: number): Promise<{ trigger: string, channels: string[] }[]> {
     try {
         const [rows] = await pool.execute(
             `SELECT \`trigger\`, channels FROM snippet_triggers WHERE guild_id = ? AND snippet_id = ?`,

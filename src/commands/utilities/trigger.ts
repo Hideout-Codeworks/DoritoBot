@@ -5,7 +5,7 @@ import {
     EmbedBuilder,
     PermissionFlagsBits
 } from 'discord.js';
-import { addTrigger, editTrigger, deleteTrigger, getTriggers } from "../../helpers/dbManageTriggers";
+import {addTrigger, editTrigger, deleteTrigger, getTriggers, getSnippetIdByName} from "../../helpers/dbManageTriggers";
 import { checkSettings } from "../../utils/checkSettings";
 
 export const data = new SlashCommandBuilder()
@@ -148,14 +148,28 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
 
     if (subcommand === 'list') {
         const snippetName = interaction.options.getString('name')!;
-
-        const triggers = await getTriggers(interaction.guild.id, snippetName);
+        const snippetId = await getSnippetIdByName(interaction.guild.id, snippetName);
+        if (!snippetId) {
+            await interaction.reply({
+                content: `Snippet "${snippetName}" not found in this guild.`,
+                flags: MessageFlags.Ephemeral,
+            });
+            return;
+        }
+        const triggers = await getTriggers(interaction.guild.id, snippetId);
 
         if (triggers.length > 0) {
             const embed = new EmbedBuilder()
                 .setTitle(`Triggers for snippet "${snippetName}"`)
-                .setDescription(triggers.map(t => `**Trigger:** ${t.trigger} \n**Channels:** ${t.channels.join(', ')}`).join('\n\n'))
-                .setColor('#3498db');
+                .setDescription(
+                    triggers
+                        .map(t => {
+                            const channelMentions = t.channels.map(channelId => `<#${channelId}>`).join(', ');
+                            return `**Trigger:** ${t.trigger} \n**Channels:** ${channelMentions}`;
+                        })
+                        .join('\n\n')
+                )
+                .setColor('#e6d47b');
 
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
         } else {
