@@ -199,8 +199,7 @@ export async function updateNoXpChannels(guildId: string, channelId: string, act
     }
 }
 
-
-export async function updateLevelRewards(guildId: string, level: number, roleId: string, action: 'add' | 'remove'): Promise<boolean> {
+export async function addLevelReward(guildId: string, level: number, roleId: string): Promise<boolean> {
     const settings = await getLevelSettings(guildId);
     if (!settings) return false;
 
@@ -210,7 +209,7 @@ export async function updateLevelRewards(guildId: string, level: number, roleId:
         try {
             rewards = JSON.parse(settings.level_rewards);
             if (typeof rewards !== 'object') {
-                rewards = {}; // If it's not an object, reset it
+                rewards = {};
             }
         } catch (error) {
             console.error('Error parsing level_rewards:', error);
@@ -218,15 +217,8 @@ export async function updateLevelRewards(guildId: string, level: number, roleId:
         }
     }
 
-    if (action === 'add') {
-        if (!rewards[level]) rewards[level] = [];
-        if (!rewards[level].includes(roleId)) rewards[level].push(roleId);
-    } else if (action === 'remove') {
-        if (rewards[level]) {
-            rewards[level] = rewards[level].filter(id => id !== roleId);
-            if (rewards[level].length === 0) delete rewards[level]; // Remove empty levels
-        }
-    }
+    if (!rewards[level]) rewards[level] = [];
+    if (!rewards[level].includes(roleId)) rewards[level].push(roleId);
 
     try {
         await pool.execute(
@@ -238,4 +230,52 @@ export async function updateLevelRewards(guildId: string, level: number, roleId:
         console.error('Error updating level rewards:', error);
         return false;
     }
+}
+
+export async function removeLevelReward(guildId: string, roleId: string): Promise<boolean> {
+    const settings = await getLevelSettings(guildId);
+    if (!settings) return false;
+
+    let rewards: LevelRewards = {};
+
+    if (settings.level_rewards) {
+        try {
+            rewards = JSON.parse(settings.level_rewards);
+            if (typeof rewards !== 'object') {
+                rewards = {};
+            }
+        } catch (error) {
+            console.error('Error parsing level_rewards:', error);
+            rewards = {};
+        }
+    }
+
+    let roleRemoved = false;
+    for (const level in rewards) {
+        const index = rewards[level].indexOf(roleId);
+        if (index !== -1) {
+            rewards[level].splice(index, 1);
+
+            if (rewards[level].length === 0) {
+                delete rewards[level];
+            }
+
+            roleRemoved = true;
+            break;
+        }
+    }
+
+    if (roleRemoved) {
+        try {
+            await pool.execute(
+                `UPDATE guild_settings SET level_rewards = ? WHERE guild_id = ?`,
+                [JSON.stringify(rewards), guildId]
+            );
+            return true;
+        } catch (error) {
+            console.error('Error updating level rewards:', error);
+            return false;
+        }
+    }
+    return false;
 }

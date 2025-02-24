@@ -6,7 +6,7 @@ import {
     EmbedBuilder
 } from 'discord.js';
 import {checkSettings} from "../../utils/checkSettings";
-import {getLevelSettings, LevelRewards, updateLevelRewards, updateNoXpChannels} from "../../helpers/dbLeveling";
+import {getLevelSettings, LevelRewards, addLevelReward, removeLevelReward, updateNoXpChannels} from "../../helpers/dbLeveling";
 
 export const data = new SlashCommandBuilder()
     .setName('levels')
@@ -123,46 +123,41 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         });
     }
 
-    if (subcommand === 'rewards_add' || subcommand === 'rewards_rem') {
+    if (subcommand === 'rewards_add') {
         const role = interaction.options.getRole('role');
         const level = interaction.options.getInteger('level');
-
-        if (!role || level === null) return;
-
-        const settings = await getLevelSettings(guildId);
-        const rewards: Record<number, string[]> = settings?.level_rewards ? JSON.parse(settings.level_rewards) : {};
-
-        if (!(level in rewards)) {
-            rewards[level] = [];
+        if (!role || level === null) {
+            await interaction.reply({
+                content: '❌ You must specify both a role and a level.',
+                flags: MessageFlags.Ephemeral
+            });
+            return;
         }
 
-        if (subcommand === 'rewards_add') {
-            if (rewards[level].includes(role.id)) {
-                await interaction.reply({
-                    content: `❌ The role <@&${role.id}> is already assigned as a reward for level ${level}.`,
-                    flags: MessageFlags.Ephemeral
-                });
-                return;
-            }
-        } else if (subcommand === 'rewards_rem') {
-            if (!rewards[level].includes(role.id)) {
-                await interaction.reply({
-                    content: `❌ The role <@&${role.id}> is not assigned as a reward for level ${level}.`,
-                    flags: MessageFlags.Ephemeral
-                });
-                return;
-            }
-        }
-
-        const success = await updateLevelRewards(guildId, level, role.id, subcommand === 'rewards_add' ? 'add' : 'remove');
+        const success = await addLevelReward(guildId, level, role.id);
         await interaction.reply({
-            content: success ? `✅ Successfully ${subcommand === 'rewards_add' ? 'added' : 'removed'} <@&${role.id}> at level ${level}.` : '❌ Failed to update rewards.',
+            content: success ? `✅ Successfully added <@&${role.id}> at level ${level}.` : '❌ Failed to add role to level.',
+            flags: MessageFlags.Ephemeral
+        });
+    } else if (subcommand === 'rewards_rem') {
+        const role = interaction.options.getRole('role');
+
+        if (!role) {
+            await interaction.reply({
+                content: '❌ You must specify a role to remove.',
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        }
+
+        const success = await removeLevelReward(guildId, role.id);
+        await interaction.reply({
+            content: success ? `✅ Successfully removed <@&${role.id}>` : '❌ Failed to remove role.',
             flags: MessageFlags.Ephemeral
         });
     }
 
-
-    if (subcommand === 'rewardslist') {
+    if (subcommand === 'rewards_list') {
         const settings = await getLevelSettings(guildId);
         const rewards: LevelRewards = settings?.level_rewards ? JSON.parse(settings.level_rewards) : {};
 
