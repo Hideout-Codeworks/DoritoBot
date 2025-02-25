@@ -100,7 +100,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
             await target.send({ content: `<:timeoutremove:1342997545395425432> **Your timeout in ${interaction.guild.name} was removed**\n-# **Reason:**\n\`${reason}\``});
             await target.timeout(null, `${interaction.user.tag}: ${reason}`);
             await interaction.reply({
-                content: `<:timeoutremove:1342997545395425432> Time out removed from \`${target.user.tag}\``,
+                content: `<:timeoutremove:1342997545395425432> Timeout removed from \`${target.user.tag}\``,
                 flags: MessageFlags.Ephemeral
             });
         } catch (error) {
