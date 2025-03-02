@@ -10,7 +10,7 @@ export interface GuildSettings {
     leveling: number;
     botonly_logging: number;
     modlog_channel: string | null;
-    no_xp_channels: string | string[] | null;
+    no_xp_channels: string | null;
     cmd_channel: string | null;
     restrict_cmds: number;
     level_rewards: string;
