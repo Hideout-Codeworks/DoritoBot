@@ -25,6 +25,7 @@ cd DoritoBot
 To install all the required dependencies, run:
 ```sh
 npm install
+npx puppeteer browsers install chrome
 ```
 
 ### 3. Install MariaDB
