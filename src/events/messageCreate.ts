@@ -110,6 +110,7 @@ client.on('messageCreate', async (message: Message) => {
 
     const noXpChannels = settings.no_xp_channels ?? [];
     if (noXpChannels.includes(message.channel.id)) return;
+    if (!settings.leveling) return;
 
     const XP_PER_MESSAGE = 15;
 
