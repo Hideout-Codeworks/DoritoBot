@@ -26,7 +26,7 @@ client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMembe
     const timeoutLog = auditLogs.entries.first();
     if (!timeoutLog) return;
 
-    const { target, executor, reason, createdTimestamp } = timeoutLog;
+    const { target, executor, reason } = timeoutLog;
 
     try {
         if (oldMember.communicationDisabledUntilTimestamp !== null && newMember.communicationDisabledUntilTimestamp === null) {
@@ -59,8 +59,10 @@ client.on('guildMemberUpdate', async (oldMember: GuildMember | PartialGuildMembe
         if (oldMember.communicationDisabledUntilTimestamp !== newMember.communicationDisabledUntilTimestamp) {
             if (!target || !executor || !newMember.communicationDisabledUntilTimestamp) return;
 
-            const timeoutDuration = newMember.communicationDisabledUntilTimestamp - 28000;
-            const humanDuration = parseHumanDuration(timeoutDuration - createdTimestamp);
+            const delayBuffer = 1000;
+            const timeoutDuration = newMember.communicationDisabledUntilTimestamp;
+            const remainingTime = timeoutDuration - Date.now() + delayBuffer;
+            const humanDuration = parseHumanDuration(remainingTime);
 
             if (executor.id === client.user.id && reason) {
                 const [moderatorUserTag, timeoutReason] = reason.split(': ', 2);
