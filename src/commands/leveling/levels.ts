@@ -6,7 +6,14 @@ import {
     EmbedBuilder
 } from 'discord.js';
 import {checkSettings} from "../../utils/checkSettings";
-import {getLevelSettings, LevelRewards, addLevelReward, removeLevelReward, updateNoXpChannels} from "../../helpers/dbLeveling";
+import {
+    getLevelSettings,
+    LevelRewards,
+    addLevelReward,
+    removeLevelReward,
+    updateNoXpChannels,
+    enableNotifs, disableNotifs
+} from "../../helpers/dbLeveling";
 import {checkCmdChannel} from "../../utils/checkCmdChannel";
 
 export const data = new SlashCommandBuilder()
@@ -64,6 +71,16 @@ export const data = new SlashCommandBuilder()
             .setName('rewards_list')
             .setDescription('List all level rewards')
     )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('notif_disable')
+            .setDescription('Disable Level-Up Notifications')
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('notif_enable')
+            .setDescription('Enable Level-Up Notifications')
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -82,6 +99,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         const channels = settings?.no_xp_channels ?? [];
 
         if (subcommand === 'noxp_add') {
+            // @ts-ignore
             if (channels.includes(channel.id)) {
                 await interaction.reply({
                     content: `❌ The channel <#${channel.id}> is already excluded from XP gain.`,
@@ -90,6 +108,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                 return;
             }
         } else if (subcommand === 'noxp_rem') {
+            // @ts-ignore
             if (!channels.includes(channel.id)) {
                 await interaction.reply({
                     content: `❌ The channel <#${channel.id}> is not in the No XP list.`,
@@ -177,5 +196,34 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
             );
 
         await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+    }
+
+    if (subcommand === 'notif_disable') {
+        const settings = await getLevelSettings(guildId)
+        const notifs= settings?.level_notifs;
+        if (notifs === 0) {
+            await interaction.reply({ content: 'Level-Up Notifications are already disabled!', flags: MessageFlags.Ephemeral });
+            return;
+        } else if (notifs === 1) {
+            const success = await disableNotifs(guildId);
+            await interaction.reply({
+                content: success ? `✅ Successfully disabled Level-Up Notifications!` : '❌ Failed to disable Level-Up Notifications.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
+    }
+    if (subcommand === 'notif_enable') {
+        const settings = await getLevelSettings(guildId)
+        const notifs= settings?.level_notifs;
+        if (notifs === 1) {
+            await interaction.reply({ content: 'Level-Up Notifications are already enabled!', flags: MessageFlags.Ephemeral });
+            return;
+        } else if (notifs === 0) {
+            const success = await enableNotifs(guildId);
+            await interaction.reply({
+                content: success ? `✅ Successfully enabled Level-Up Notifications!` : '❌ Failed to enable Level-Up Notifications.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
     }
 }

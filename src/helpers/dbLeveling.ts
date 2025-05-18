@@ -1,6 +1,7 @@
 import {pool} from '../utils/database';
 import {GuildSettings} from "./fetchGuildSettings";
 import {RowDataPacket} from 'mysql2';
+import {MessageFlags} from "discord.js";
 
 export interface LevelRewards {
     [level: number]: string[];
@@ -145,27 +146,29 @@ export async function getTopRanks(guildId: string, topN: number): Promise<{ user
 export async function getLevelSettings(guildId: string): Promise<GuildSettings | null> {
     try {
         const [rows] = await pool.execute(
-            `SELECT no_xp_channels, level_rewards FROM guild_settings WHERE guild_id = ?`,
+            `SELECT no_xp_channels, level_rewards, level_notifs FROM guild_settings WHERE guild_id = ?`,
             [guildId]
         );
 
         const settings = (rows as GuildSettings[])[0] || null;
 
         if (settings) {
-            if (settings.no_xp_channels && typeof settings.no_xp_channels === 'string') {
+            if (settings.no_xp_channels) {
                 try {
                     settings.no_xp_channels = JSON.parse(settings.no_xp_channels);
                     if (!Array.isArray(settings.no_xp_channels)) {
-                        settings.no_xp_channels = [];
+                        settings.no_xp_channels = "";
                     }
                 } catch (error) {
                     console.error('Error parsing no_xp_channels:', error);
-                    settings.no_xp_channels = [];
+                    settings.no_xp_channels = "";
                 }
             } else if (settings.no_xp_channels === null) {
-                settings.no_xp_channels = [];
+                settings.no_xp_channels = "";
             }
         }
+
+        console.log(settings?.level_notifs);
 
         return settings;
     } catch (error) {
@@ -278,4 +281,42 @@ export async function removeLevelReward(guildId: string, roleId: string): Promis
         }
     }
     return false;
+}
+
+export async function enableNotifs(guildId: string): Promise<boolean> {
+    const settings = await getLevelSettings(guildId);
+    if (!settings) return false;
+    const notifs= settings?.level_notifs;
+    if (notifs === 1) return false;
+    else {
+        try {
+            await pool.execute(
+                `UPDATE guild_settings SET level_notifs = 1 WHERE guild_id = ?`,
+                [guildId]
+            );
+            return true;
+        } catch (error) {
+            console.error('Error updating level notifs:', error);
+            return false;
+        }
+    }
+}
+
+export async function disableNotifs(guildId: string): Promise<boolean> {
+    const settings = await getLevelSettings(guildId);
+    if (!settings) return false;
+    const notifs= settings?.level_notifs;
+    if (notifs === 0) return false;
+    else {
+        try {
+            await pool.execute(
+                `UPDATE guild_settings SET level_notifs = 0 WHERE guild_id = ?`,
+                [guildId]
+            );
+            return true;
+        } catch (error) {
+            console.error('Error updating level notifs:', error);
+            return false;
+        }
+    }
 }

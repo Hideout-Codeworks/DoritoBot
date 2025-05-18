@@ -148,6 +148,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                     { name: '', value: `-# Utility Commands\n${settings.utility ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}` , inline: true },
                     { name: '', value: `-# Fun Commands\n${settings.fun ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
                     { name: '', value: `-# Leveling System\n${settings.leveling ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
+                    { name: '', value: `-# Level-Up Notifications\n${settings.level_notifs ? '\`🟢 ENABLED \`' : '\`🔴 DISABLED \`'}`, inline: true },
                     { name: '', value: '💬 **Bot Channels**', inline: false },
                     { name: '', value: `-# Moderation Log Channel\n${settings.modlog_channel ? `<#${settings.modlog_channel}>` : '\` NOT SET \`'}`, inline: true },
                     { name: '', value: `-# CMD Channel\n${settings.cmd_channel ? `<#${settings.cmd_channel}>` : '` NOT SET `'}`, inline: true },

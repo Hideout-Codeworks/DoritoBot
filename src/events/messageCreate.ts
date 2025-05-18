@@ -99,7 +99,9 @@ client.on('messageCreate', async (message: Message) => {
         const levelAfter = await getLevel(guildId, userId);
 
         if (levelAfter > levelBefore) {
-            await message.channel.send({ content: `🎉 **${message.author.displayName}** leveled up to ${levelAfter}!` });
+            if (settings.level_notifs === 1) {
+                await message.channel.send({ content: `🎉 **${message.author.displayName}** leveled up to ${levelAfter}!` });
+            }
             const rewards = settings.level_rewards ? JSON.parse(settings.level_rewards) : {};
 
             if (rewards[levelAfter]) {

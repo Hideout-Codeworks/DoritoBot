@@ -14,6 +14,7 @@ export interface GuildSettings {
     cmd_channel: string | null;
     restrict_cmds: number;
     level_rewards: string;
+    level_notifs: number;
 }
 
 export async function fetchGuildSettings(guildId: string) {
@@ -27,7 +28,7 @@ export async function fetchGuildSettings(guildId: string) {
 
             const insertQuery = `
                 INSERT INTO guild_settings (guild_id, logging, moderation, utility, fun, leveling, botonly_logging, modlog_channel, no_xp_channels, cmd_channel, restrict_cmds, level_rewards)
-                VALUES (?, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, null, null, null, 0, null);
+                VALUES (?, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, null, null, null, 0, null, 1);
             `;
 
             await pool.execute(insertQuery, [guildId]);
