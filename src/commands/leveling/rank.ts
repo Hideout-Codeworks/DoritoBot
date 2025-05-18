@@ -31,7 +31,7 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
         `&currentxp=${await getXP(guildId, target.id)}` +
         `&nextlevelxp=${await getNextLevelXP(guildId, target.id)}` +
         `&previouslevelxp=0` +
-        `&custombg=https://files.itz.sh/rankcard.png ` +
+        `&custombg=https://files.itz.sh/rankcard.png` +
         `&xpcolor=${xpColor}`;
 
     const embed = new EmbedBuilder()
