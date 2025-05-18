@@ -75,7 +75,9 @@ export async function execute(interaction: ChatInputCommandInteraction): Promise
                     { name: '`/levels noxp_add <channel>`', value: "Add a channel to be excluded from giving XP" },
                     { name: '`/levels noxp_rem <channel>`', value: "Remove a channel from exclusion" },
                     { name: '`/levels rewards_add <role> <level>`', value: "Add a level reward" },
-                    { name: '`/levels rewards_rem <role>`', value: "Remove a level reward" }
+                    { name: '`/levels rewards_rem <role>`', value: "Remove a level reward" },
+                    { name: '`/levels notif_disable`', value: "Disable Level-Up Notifications" },
+                    { name: '`/levels notif_enable`', value: "Enable Level-Up Notifications" }
                 )
                 .setTimestamp()
             await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral })
